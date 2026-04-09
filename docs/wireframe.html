@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Seasonal Fruit — Wireframe</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #FFF8F0;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Top bar */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    background: rgba(255, 248, 240, 0.9);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+  }
+  .top-bar .location {
+    font-size: 13px;
+    color: #8B7355;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .top-bar .season-badge {
+    font-size: 12px;
+    color: #D4763A;
+    background: #FFF0E0;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* Card stack area */
+  .card-stack {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow: hidden;
+  }
+
+  /* Individual card */
+  .card {
+    position: absolute;
+    width: calc(100% - 32px);
+    max-width: 380px;
+    height: calc(100% - 32px);
+    max-height: 680px;
+    border-radius: 28px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 40px rgba(139, 115, 85, 0.15);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  /* Card 3 (back) - barely visible */
+  .card-3 {
+    background: #F5E6D3;
+    transform: scale(0.9) translateY(24px);
+    z-index: 1;
+  }
+
+  /* Card 2 (middle) */
+  .card-2 {
+    background: #E8F5E9;
+    transform: scale(0.95) translateY(12px);
+    z-index: 2;
+  }
+
+  /* Card 1 (front - Peach) */
+  .card-1 {
+    background: linear-gradient(180deg, #FFECD2 0%, #FFD4A8 30%, #FFF8F0 100%);
+    z-index: 3;
+  }
+
+  /* Fruit illustration zone - takes up 70% of card */
+  .fruit-zone {
+    flex: 0 0 72%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* The oversized SVG peach */
+  .fruit-svg {
+    width: 110%;
+    height: 110%;
+    position: absolute;
+    top: -5%;
+    left: -5%;
+  }
+
+  /* Peach SVG illustration - bold, oversized, fills the frame */
+  .peach-body { fill: #FFAB76; }
+  .peach-blush { fill: #FF8A65; opacity: 0.7; }
+  .peach-highlight { fill: #FFD4A8; opacity: 0.6; }
+  .peach-leaf { fill: #81C784; }
+  .peach-leaf-dark { fill: #66BB6A; }
+  .peach-stem { fill: #8D6E63; }
+  .peach-shadow { fill: #E8956A; opacity: 0.3; }
+
+  /* Info panel at bottom of card */
+  .info-panel {
+    flex: 1;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: white;
+    border-radius: 24px 24px 0 0;
+    margin-top: -20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .fruit-name {
+    font-size: 32px;
+    font-weight: 800;
+    color: #3E2723;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  .fruit-variety {
+    font-size: 14px;
+    color: #8B7355;
+    margin-top: 2px;
+    font-weight: 500;
+  }
+
+  .fruit-meta {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .meta-tag {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .tag-season {
+    background: #E8F5E9;
+    color: #2E7D32;
+  }
+  .tag-flavor {
+    background: #FFF3E0;
+    color: #E65100;
+  }
+  .tag-local {
+    background: #FCE4EC;
+    color: #C62828;
+  }
+
+  .fruit-description {
+    font-size: 14px;
+    color: #6D5D4B;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+
+  /* Bottom action bar */
+  .action-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    padding: 16px 20px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    background: rgba(255, 248, 240, 0.95);
+    backdrop-filter: blur(10px);
+  }
+
+  .action-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .action-btn:active { transform: scale(0.9); }
+
+  .btn-skip {
+    background: white;
+    color: #BDBDBD;
+    font-size: 20px;
+  }
+
+  .btn-save {
+    background: #FF8A65;
+    color: white;
+    width: 64px;
+    height: 64px;
+    font-size: 28px;
+  }
+
+  .btn-info {
+    background: white;
+    color: #8B7355;
+    font-size: 20px;
+  }
+
+  /* Swipe hint overlay */
+  .swipe-hint {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: #BDBDBD;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    z-index: 5;
+  }
+  .swipe-hint.left { left: 24px; }
+  .swipe-hint.right { right: 24px; }
+
+  /* Annotation labels for wireframe */
+  .annotation {
+    position: fixed;
+    background: #333;
+    color: white;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    z-index: 100;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .annotation::before {
+    content: '';
+    position: absolute;
+    width: 1px;
+    background: #333;
+    left: 50%;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top navigation -->
+  <div class="top-bar">
+    <span class="location">📍 San Francisco, CA</span>
+    <span class="season-badge">🌸 Spring</span>
+  </div>
+
+  <!-- Card stack -->
+  <div class="card-stack">
+    <!-- Swipe hints -->
+    <span class="swipe-hint left">← skip</span>
+    <span class="swipe-hint right">save →</span>
+
+    <!-- Background card 3 -->
+    <div class="card card-3"></div>
+
+    <!-- Background card 2 -->
+    <div class="card card-2"></div>
+
+    <!-- Front card - Peach -->
+    <div class="card card-1">
+      <div class="fruit-zone">
+        <!-- Oversized peach SVG - intentionally overflows -->
+        <svg class="fruit-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <!-- Shadow -->
+          <ellipse cx="200" cy="370" rx="120" ry="20" class="peach-shadow"/>
+
+          <!-- Main peach body - large, bold, rounded -->
+          <ellipse cx="200" cy="210" rx="155" ry="150" class="peach-body"/>
+
+          <!-- Peach crease line -->
+          <path d="M200 80 Q195 200 200 340" stroke="#E8956A" stroke-width="3" fill="none" opacity="0.4"/>
+
+          <!-- Blush area - warm red tones -->
+          <ellipse cx="160" cy="180" rx="80" ry="90" class="peach-blush" transform="rotate(-15 160 180)"/>
+
+          <!-- Highlight - top light catch -->
+          <ellipse cx="230" cy="150" rx="50" ry="40" class="peach-highlight" transform="rotate(20 230 150)"/>
+
+          <!-- Small secondary highlight -->
+          <ellipse cx="250" cy="170" rx="25" ry="15" fill="white" opacity="0.25" transform="rotate(30 250 170)"/>
+
+          <!-- Stem -->
+          <path d="M200 70 Q205 50 210 35" stroke="#8D6E63" stroke-width="5" fill="none" stroke-linecap="round"/>
+
+          <!-- Leaf 1 -->
+          <path d="M210 45 Q240 25 260 40 Q240 50 215 50 Z" class="peach-leaf"/>
+          <path d="M210 45 Q240 35 260 40" stroke="#66BB6A" stroke-width="1.5" fill="none"/>
+
+          <!-- Leaf 2 (smaller) -->
+          <path d="M205 50 Q185 30 175 42 Q185 48 202 52 Z" class="peach-leaf-dark"/>
+
+          <!-- Subtle texture dots -->
+          <circle cx="170" cy="200" r="1.5" fill="#E8956A" opacity="0.3"/>
+          <circle cx="230" cy="230" r="1.5" fill="#E8956A" opacity="0.3"/>
+          <circle cx="190" cy="260" r="1.5" fill="#E8956A" opacity="0.3"/>
+          <circle cx="220" cy="170" r="1.5" fill="#E8956A" opacity="0.3"/>
+          <circle cx="150" cy="220" r="1.5" fill="#E8956A" opacity="0.3"/>
+        </svg>
+      </div>
+
+      <!-- Info panel -->
+      <div class="info-panel">
+        <div class="fruit-name">Peach</div>
+        <div class="fruit-variety">Yellow Freestone</div>
+        <div class="fruit-meta">
+          <span class="meta-tag tag-season">May – Sep</span>
+          <span class="meta-tag tag-flavor">🍯 Sweet & Juicy</span>
+          <span class="meta-tag tag-local">2 mi away</span>
+        </div>
+        <p class="fruit-description">
+          Peak season starts next month. Look for firm fruit with a sweet
+          fragrance at the stem — that's how you know it's ready.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom action bar -->
+  <div class="action-bar">
+    <button class="action-btn btn-skip">✕</button>
+    <button class="action-btn btn-save">🍑</button>
+    <button class="action-btn btn-info">ℹ</button>
+  </div>
+
+</body>
+</html>
