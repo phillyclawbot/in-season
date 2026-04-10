@@ -10,6 +10,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "In Season",
   },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/api/icon/180",
+  },
 };
 
 export const viewport: Viewport = {
