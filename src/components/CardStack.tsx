@@ -10,13 +10,23 @@ interface CardStackProps {
   currentIndex: number;
   onIndexChange: (index: number) => void;
   onCardTap: () => void;
+  isFavorite?: (id: string) => boolean;
+  onToggleFavorite?: (id: string) => void;
 }
 
-export default function CardStack({ fruits, currentIndex, onIndexChange, onCardTap }: CardStackProps) {
+export default function CardStack({
+  fruits,
+  currentIndex,
+  onIndexChange,
+  onCardTap,
+  isFavorite,
+  onToggleFavorite,
+}: CardStackProps) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
   const nextScale = useTransform(x, [-200, 0, 200], [1, 0.95, 1]);
   const nextOpacity = useTransform(x, [-200, 0, 200], [1, 0.8, 1]);
+  const [isDragging, setIsDragging] = useState(false);
 
   const goTo = useCallback(
     (newIndex: number) => {
@@ -27,21 +37,24 @@ export default function CardStack({ fruits, currentIndex, onIndexChange, onCardT
     [fruits.length, onIndexChange]
   );
 
+  const handleDragStart = useCallback(() => {
+    setIsDragging(true);
+  }, []);
+
   const handleDragEnd = useCallback(
     (_: unknown, info: { offset: { x: number }; velocity: { x: number } }) => {
+      setIsDragging(false);
       const threshold = 100;
       const velocityThreshold = 500;
       const offset = info.offset.x;
       const velocity = info.velocity.x;
 
       if (offset < -threshold || velocity < -velocityThreshold) {
-        // Swipe left = next
         animate(x, -400, { type: "spring", stiffness: 300, damping: 30 }).then(() => {
           x.set(0);
           goTo(currentIndex + 1);
         });
       } else if (offset > threshold || velocity > velocityThreshold) {
-        // Swipe right = previous
         animate(x, 400, { type: "spring", stiffness: 300, damping: 30 }).then(() => {
           x.set(0);
           goTo(currentIndex - 1);
@@ -65,9 +78,20 @@ export default function CardStack({ fruits, currentIndex, onIndexChange, onCardT
 
   const current = fruits[currentIndex];
   const next = fruits[currentIndex + 1];
-  const prev = fruits[currentIndex > 0 ? currentIndex - 1 : fruits.length - 1];
 
   if (!current) return null;
+
+  const handleCardClick = useCallback(() => {
+    if (!isDragging) onCardTap();
+  }, [isDragging, onCardTap]);
+
+  const handleFavoriteClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onToggleFavorite?.(current.id);
+    },
+    [current.id, onToggleFavorite]
+  );
 
   return (
     <div className="relative w-full h-full flex items-center justify-center px-4">
@@ -88,10 +112,16 @@ export default function CardStack({ fruits, currentIndex, onIndexChange, onCardT
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.7}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         whileTap={{ scale: 0.98 }}
       >
-        <FruitCard fruit={current} onTap={onCardTap} />
+        <FruitCard
+          fruit={current}
+          onTap={handleCardClick}
+          isFavorite={isFavorite?.(current.id)}
+          onToggleFavorite={onToggleFavorite ? handleFavoriteClick : undefined}
+        />
       </motion.div>
     </div>
   );

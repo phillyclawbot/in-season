@@ -1,3 +1,13 @@
+export interface Recipe {
+  name: string;
+  description: string;
+}
+
+export interface Nutrition {
+  calories: number; // per 100g
+  highlights: string[];
+}
+
 export interface Fruit {
   id: string;
   name: string;
@@ -15,6 +25,8 @@ export interface Fruit {
   description: string;
   storageTips: string;
   funFact: string;
+  recipes: Recipe[];
+  nutrition: Nutrition;
 }
 
 export const fruits: Fruit[] = [
@@ -32,6 +44,12 @@ export const fruits: Fruit[] = [
     description: "Fall apples are at their absolute peak — the cool nights concentrate sugars and create that satisfying snap. Washington State produces 60% of US apples.",
     storageTips: "Refrigerate to keep crisp for weeks. Store away from other produce as apples emit ethylene gas.",
     funFact: "It takes about 36 apple leaves to grow one apple.",
+    recipes: [
+      { name: "Brown Butter Apple Galette", description: "Thinly sliced apples arranged on buttery pastry with cinnamon sugar and a brown butter drizzle. Rustic and stunning." },
+      { name: "Apple & Cheddar Grilled Cheese", description: "Tart apple slices with sharp cheddar on sourdough. The contrast of sweet, savory, and melty is extraordinary." },
+      { name: "Overnight Apple Oats", description: "Grated apple folded into oats with maple syrup and cinnamon. Tastes like pie for breakfast." },
+    ],
+    nutrition: { calories: 52, highlights: ["Fiber-rich", "Vitamin C", "Quercetin antioxidant"] },
   },
   {
     id: "apricot",
@@ -47,6 +65,33 @@ export const fruits: Fruit[] = [
     description: "California Blenheims are considered the gold standard — honey-sweet with a floral fragrance that disappears within days of peak ripeness.",
     storageTips: "Let ripen at room temperature until slightly soft. Refrigerate once ripe and eat within a few days.",
     funFact: "Apricots are more than 85% water and were first cultivated in China over 4,000 years ago.",
+    recipes: [
+      { name: "Apricot & Prosciutto Crostini", description: "Fresh apricot halves on grilled bread with prosciutto and a drizzle of honey. Five ingredients, showstopper results." },
+      { name: "Apricot Jam (30-Minute)", description: "Halved apricots, sugar, and a squeeze of lemon simmered until jammy. No pectin needed — apricots gel naturally." },
+      { name: "Grilled Apricot Salad", description: "Halved apricots char-grilled and tossed with arugula, goat cheese, and balsamic. Sweet-smoky-tart." },
+    ],
+    nutrition: { calories: 48, highlights: ["Beta-carotene", "Vitamin A", "Potassium"] },
+  },
+  {
+    id: "avocado",
+    name: "Avocado",
+    emoji: "🥑",
+    variety: "Hass",
+    imageUrl: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=800&q=90&fit=crop",
+    seasonMonths: [1, 2, 3, 4, 5, 10, 11, 12],
+    peakMonth: 4,
+    regions: ["Pacific", "Southeast"],
+    flavorProfile: ["buttery", "rich", "creamy"],
+    colorPalette: { primary: "#F0FFF4", accent: "#16A34A" },
+    description: "California Hass avocados peak spring and fall. The bumpy black skin signals ripeness — press gently near the stem, and if it yields slightly, it's ready today.",
+    storageTips: "Ripen at room temperature. Speed ripening by putting in a paper bag with a banana. Refrigerate once ripe for 2–3 days.",
+    funFact: "Avocados are technically a berry — and each one is pollinated by a specific type of bee that only visits avocado flowers.",
+    recipes: [
+      { name: "Classic Guacamole", description: "Mashed avocado with lime, cilantro, white onion, and jalapeño. Salt aggressively — it needs it." },
+      { name: "Avocado Toast with Everything Bagel Seasoning", description: "Smashed on thick toast, topped with red pepper flakes, lemon zest, and a fried egg." },
+      { name: "Avocado & Mango Salsa", description: "Diced avocado, mango, red onion, lime, and cilantro. Serve with chips or over grilled fish." },
+    ],
+    nutrition: { calories: 160, highlights: ["Healthy monounsaturated fats", "Folate", "Potassium", "Vitamin K"] },
   },
   {
     id: "banana",
@@ -62,6 +107,12 @@ export const fruits: Fruit[] = [
     description: "Hawaii and Florida grow bananas year-round. Wait until spots appear on the peel — that's when flavor is fullest and starches have fully converted to sugar.",
     storageTips: "Never refrigerate unripe bananas. Hang them to prevent bruising. Freeze overripe ones for smoothies.",
     funFact: "Bananas are technically berries, while strawberries are not.",
+    recipes: [
+      { name: "Banana Foster French Toast", description: "Thick-cut brioche soaked in custard, pan-fried, topped with caramelized bananas in brown sugar and rum butter." },
+      { name: "3-Ingredient Banana Pancakes", description: "Mashed ripe banana, eggs, and a pinch of cinnamon. Naturally sweet, no flour needed." },
+      { name: "Frozen Banana 'Nice Cream'", description: "Frozen bananas blended until creamy — the texture of soft-serve with zero dairy. Add peanut butter or cocoa." },
+    ],
+    nutrition: { calories: 89, highlights: ["Potassium", "Vitamin B6", "Vitamin C", "Quick energy"] },
   },
   {
     id: "blackberry",
@@ -77,6 +128,12 @@ export const fruits: Fruit[] = [
     description: "The Marion berry from Oregon is the blackberry all others aspire to be — intensely flavored, deeply pigmented, and only available for a few precious weeks.",
     storageTips: "Refrigerate immediately, unwashed. Use within 2–3 days. Freeze on a sheet pan before bagging.",
     funFact: "Blackberries are aggregate fruits — each tiny section is a separate drupe.",
+    recipes: [
+      { name: "Blackberry Basil Smash", description: "Muddled blackberries and fresh basil, lemon juice, simple syrup, club soda. Stunning purple color." },
+      { name: "Blackberry Crumble", description: "Fresh blackberries under a buttery oat crumble. Serve warm with vanilla ice cream." },
+      { name: "Blackberry Vinaigrette", description: "Blended blackberries, red wine vinegar, honey, and olive oil. Incredible on bitter greens like arugula or radicchio." },
+    ],
+    nutrition: { calories: 43, highlights: ["Vitamin C", "Fiber", "Anthocyanins", "Vitamin K"] },
   },
   {
     id: "blood-orange",
@@ -92,6 +149,12 @@ export const fruits: Fruit[] = [
     description: "The crimson flesh comes from anthocyanins, the same pigment in berries. Flavor is a unique blend of orange and raspberry.",
     storageTips: "Refrigerate for up to two weeks. Best served at room temperature.",
     funFact: "The red color deepens with cold night temperatures — the bigger the temperature swing, the darker the flesh.",
+    recipes: [
+      { name: "Blood Orange Curd Tart", description: "Silky blood orange curd in a shortbread shell. The deep magenta color is almost too beautiful to eat." },
+      { name: "Blood Orange & Fennel Salad", description: "Supremed blood oranges with shaved fennel, arugula, and olives. A classic Sicilian combination." },
+      { name: "Blood Orange Margarita", description: "Fresh blood orange juice, tequila, lime, and a salted rim. The color alone makes it a party." },
+    ],
+    nutrition: { calories: 50, highlights: ["Anthocyanins", "Vitamin C", "Folate", "Potassium"] },
   },
   {
     id: "blueberry",
@@ -107,6 +170,33 @@ export const fruits: Fruit[] = [
     description: "The silvery bloom on the skin is a sign of freshness — it's a natural wax the berry produces. Plump, firm berries with deep indigo color are perfect.",
     storageTips: "Refrigerate dry and unwashed. Rinse just before eating.",
     funFact: "Blueberries are one of the only naturally blue foods in the world.",
+    recipes: [
+      { name: "Blueberry Buttermilk Pancakes", description: "Fold blueberries into a tangy buttermilk batter. They burst into jammy pockets when they hit the hot pan." },
+      { name: "Blueberry Shrub", description: "Blueberries macerated in vinegar and sugar for a week, strained. Add to sparkling water for a complex drinking vinegar." },
+      { name: "Blueberry Ricotta Toast", description: "Thick ricotta on toasted sourdough topped with fresh blueberries, honey, and lemon zest. Ready in 5 minutes." },
+    ],
+    nutrition: { calories: 57, highlights: ["Anthocyanins", "Vitamin C", "Vitamin K", "Manganese"] },
+  },
+  {
+    id: "boysenberry",
+    name: "Boysenberry",
+    emoji: "🟣",
+    variety: "Thornless",
+    imageUrl: "https://images.unsplash.com/photo-1615484477778-ca3b77940c25?w=800&q=90&fit=crop",
+    seasonMonths: [5, 6, 7],
+    peakMonth: 6,
+    regions: ["Pacific", "Mountain", "Southeast"],
+    flavorProfile: ["tart", "musky", "complex"],
+    colorPalette: { primary: "#F5F3FF", accent: "#7C3AED" },
+    description: "A cross between a blackberry, loganberry, and raspberry, the boysenberry is larger, juicier, and more complex than any of its parents. Oregon's brief season is legendary.",
+    storageTips: "Use within 1–2 days of purchase. Freeze immediately if you can't eat them in time.",
+    funFact: "The boysenberry was nearly extinct until Knott's Berry Farm saved the last remaining vines in the 1930s.",
+    recipes: [
+      { name: "Boysenberry Jam", description: "Simple macerated berries cooked with sugar and lemon — the flavor of boysenberry jam is incomparable to any store-bought version." },
+      { name: "Boysenberry Tart", description: "Fresh boysenberries in a vanilla pastry cream, in a butter tart shell. Summer perfection." },
+      { name: "Boysenberry Lemonade", description: "Boysenberry syrup stirred into fresh lemonade turns it deep purple-pink. Refreshing and visually stunning." },
+    ],
+    nutrition: { calories: 43, highlights: ["Vitamin C", "Iron", "Folate", "Antioxidants"] },
   },
   {
     id: "cantaloupe",
@@ -122,6 +212,12 @@ export const fruits: Fruit[] = [
     description: "A ripe cantaloupe smells like a cantaloupe — trust your nose. The netting on the skin should be coarse and raised, and the blossom end should yield slightly.",
     storageTips: "Ripen at room temperature. Once cut, refrigerate covered for up to 3 days.",
     funFact: "Cantaloupes are 90% water, making them one of the most hydrating fruits.",
+    recipes: [
+      { name: "Cantaloupe & Prosciutto", description: "The Italian classic: sweet melon with salty cured ham. No cooking required — just slice and arrange." },
+      { name: "Cantaloupe Agua Fresca", description: "Blended cantaloupe, lime juice, water, and a pinch of salt. The essential Mexican summer drink." },
+      { name: "Chilled Cantaloupe Soup", description: "Blended with ginger, lime, and a splash of mint. Served cold — unexpectedly elegant." },
+    ],
+    nutrition: { calories: 34, highlights: ["Vitamin A", "Vitamin C", "Beta-carotene", "Hydrating"] },
   },
   {
     id: "cherry",
@@ -137,6 +233,12 @@ export const fruits: Fruit[] = [
     description: "Washington State Bing cherries are the summer jewel — deep mahogany skin, plump flesh, and a brief 6-week window when they're at their best.",
     storageTips: "Refrigerate unwashed with stems attached. Rinse just before eating.",
     funFact: "The stem of a cherry keeps it fresh 50% longer — leave them on until you eat them.",
+    recipes: [
+      { name: "Cherry Clafoutis", description: "Unpitted cherries baked in a custard batter. French farmhouse dessert that's simpler than it looks and extraordinary in flavor." },
+      { name: "Cherry Bourbon Smash", description: "Muddled cherries, bourbon, lemon, and a touch of honey. The cocktail of cherry season." },
+      { name: "Dark Chocolate Cherry Bark", description: "Melted dark chocolate spread thin, topped with halved fresh cherries, flaky salt, and crushed pistachios. Freeze until set." },
+    ],
+    nutrition: { calories: 50, highlights: ["Anthocyanins", "Vitamin C", "Potassium", "Anti-inflammatory"] },
   },
   {
     id: "clementine",
@@ -152,6 +254,12 @@ export const fruits: Fruit[] = [
     description: "Clementines are the easiest-peel citrus — the loose skin slips off in seconds. California and Florida compete for the best winter crop.",
     storageTips: "Store at room temperature for a week or refrigerate for up to three weeks.",
     funFact: "Clementines are a hybrid of a mandarin and a sweet orange, and are almost always seedless.",
+    recipes: [
+      { name: "Clementine Olive Oil Cake", description: "Whole clementines boiled and blended into a moist, fragrant olive oil cake. No butter, barely any flour." },
+      { name: "Winter Citrus Salad", description: "Segmented clementines with pomegranate seeds, mint, and a honey-rose water dressing." },
+      { name: "Clementine Curd", description: "Bright, slightly less tart than lemon curd. Spread on scones or use as a tart filling." },
+    ],
+    nutrition: { calories: 47, highlights: ["Vitamin C", "Folate", "Thiamine", "Antioxidants"] },
   },
   {
     id: "coconut",
@@ -167,6 +275,12 @@ export const fruits: Fruit[] = [
     description: "Hawaiian and Florida coconuts are harvested year-round. Young green coconuts are prized for their sweet water; mature ones for rich, creamy flesh.",
     storageTips: "Whole coconut keeps for weeks. Opened fresh coconut refrigerates for up to a week.",
     funFact: "A coconut can float across the ocean and still germinate on a distant shore.",
+    recipes: [
+      { name: "Thai Coconut Soup (Tom Kha)", description: "Coconut milk simmered with galangal, lemongrass, lime leaves, and mushrooms. Healing and complex." },
+      { name: "Coconut Tres Leches", description: "Sponge cake soaked in three milks including coconut milk, topped with coconut whipped cream." },
+      { name: "Fresh Coconut Chutney", description: "Grated coconut flesh blended with green chili, ginger, and lime. The essential South Indian condiment." },
+    ],
+    nutrition: { calories: 354, highlights: ["MCT healthy fats", "Manganese", "Copper", "Lauric acid"] },
   },
   {
     id: "cranberry",
@@ -182,6 +296,33 @@ export const fruits: Fruit[] = [
     description: "Massachusetts and Wisconsin produce 80% of US cranberries. The iconic wet harvest — flooding the bogs so berries float — makes them one of the most photogenic crops.",
     storageTips: "Refrigerate for up to two months. Freeze in the bag they come in for up to a year.",
     funFact: "Cranberries float because they have four air pockets inside, which is how farmers harvest them — by flooding the bogs.",
+    recipes: [
+      { name: "Fresh Cranberry Relish", description: "Raw cranberries pulsed with orange zest, apple, and sugar. Bright and complex — nothing like canned." },
+      { name: "Cranberry Walnut Bread", description: "A quick bread with tart berries, toasted walnuts, and orange zest. Perfect for the holiday season." },
+      { name: "Cranberry Brie Bites", description: "Puff pastry cups filled with brie and cranberry sauce, baked until golden. Six ingredients, always impressive." },
+    ],
+    nutrition: { calories: 46, highlights: ["Vitamin C", "Proanthocyanidins", "Fiber", "Manganese"] },
+  },
+  {
+    id: "currant",
+    name: "Currant",
+    emoji: "🔴",
+    variety: "Red Lake",
+    imageUrl: "https://images.unsplash.com/photo-1615484477778-ca3b77940c25?w=800&q=90&fit=crop",
+    seasonMonths: [6, 7, 8],
+    peakMonth: 7,
+    regions: ["Northeast", "Midwest", "Pacific", "Mountain"],
+    flavorProfile: ["tart", "bright", "jewel-like"],
+    colorPalette: { primary: "#FFF0F3", accent: "#BE123C" },
+    description: "Red and black currants are briefly available in high summer — intensely tart, almost jewel-like clusters that are rarely found in supermarkets. Seek them at farmers markets.",
+    storageTips: "Very perishable — use within 2–3 days. Freeze in a single layer on a sheet pan.",
+    funFact: "Currants were banned in the US for nearly 100 years because they spread white pine blister rust — the ban was lifted state by state starting in the 1960s.",
+    recipes: [
+      { name: "Currant Fool", description: "Whipped cream folded with fresh currant purée. Old English dessert, shockingly simple, stunning color." },
+      { name: "Red Currant Jelly", description: "High-pectin currants make perfect jelly without pectin. The classic companion to lamb and venison." },
+      { name: "Currant & Hazelnut Scones", description: "Dried or fresh currants in a buttery scone dough with toasted hazelnuts. A perfect morning treat." },
+    ],
+    nutrition: { calories: 56, highlights: ["Vitamin C (5x oranges)", "Anthocyanins", "Iron", "Potassium"] },
   },
   {
     id: "date",
@@ -197,6 +338,12 @@ export const fruits: Fruit[] = [
     description: "California's Coachella Valley and Arizona produce some of the world's best Medjool dates. Freshly harvested ones in fall have a soft, almost creamy texture.",
     storageTips: "Store in an airtight container at room temperature for weeks, or refrigerate for months.",
     funFact: "Date palms can live for over 100 years and keep producing fruit throughout their entire lifespan.",
+    recipes: [
+      { name: "Stuffed Dates with Goat Cheese", description: "Medjool dates pitted and filled with herbed goat cheese, wrapped in prosciutto. No cooking needed." },
+      { name: "Sticky Toffee Pudding", description: "Dates blended into the batter give this British classic its dense, intensely caramel flavor." },
+      { name: "Tahini Date Smoothie", description: "Dates, tahini, banana, and oat milk blended smooth. Naturally sweet, no sugar added." },
+    ],
+    nutrition: { calories: 277, highlights: ["Iron", "Potassium", "Magnesium", "Fiber", "Natural sugars"] },
   },
   {
     id: "dragon-fruit",
@@ -212,6 +359,54 @@ export const fruits: Fruit[] = [
     description: "California and Florida grow dragon fruit from cactus-like vines. The stunning magenta or white interior is mild in flavor but packed with tiny crunchy seeds.",
     storageTips: "Ripen at room temperature until the skin is bright and gives slightly. Refrigerate once ripe.",
     funFact: "Dragon fruit flowers only bloom at night — they are pollinated by moths and bats.",
+    recipes: [
+      { name: "Dragon Fruit Smoothie Bowl", description: "Blended frozen dragon fruit with coconut milk, topped with granola, fresh fruit, and coconut flakes. The pink color is electric." },
+      { name: "Dragon Fruit Salsa", description: "Diced dragon fruit with cucumber, jalapeño, lime, and cilantro. Pairs perfectly with grilled seafood." },
+      { name: "Dragon Fruit Lemonade", description: "Pink dragon fruit blended and strained into fresh lemonade. Natural food coloring at its most striking." },
+    ],
+    nutrition: { calories: 60, highlights: ["Vitamin C", "Iron", "Magnesium", "Prebiotic fiber"] },
+  },
+  {
+    id: "durian",
+    name: "Durian",
+    emoji: "🌵",
+    variety: "Musang King",
+    imageUrl: "https://images.unsplash.com/photo-1568454537842-d933259bb258?w=800&q=90&fit=crop",
+    seasonMonths: [5, 6, 7, 8],
+    peakMonth: 6,
+    regions: ["Pacific", "Southeast"],
+    flavorProfile: ["custard-like", "complex", "pungent"],
+    colorPalette: { primary: "#FEFCE8", accent: "#A16207" },
+    description: "The King of Fruits — deeply divisive but beloved by millions. Fresh durian from Southeast Asian markets in California offers a custardy, complex flavor unlike anything else.",
+    storageTips: "Eat immediately once opened. The aroma is intense — keep sealed until serving. Freeze portioned flesh for later.",
+    funFact: "Durian is banned in many hotels and public transit in Southeast Asia due to its powerful smell — but devoted fans describe the flavor as transcendent.",
+    recipes: [
+      { name: "Durian Sticky Rice", description: "Creamy durian flesh served over warm glutinous rice with coconut milk. Classic Thai combination." },
+      { name: "Durian Ice Cream", description: "Durian flesh blended into a coconut milk base, frozen. The aroma mellows beautifully when cold." },
+      { name: "Durian Pancakes", description: "Thin crepe shells filled with fresh whipped cream and durian flesh. A Hong Kong dim sum staple." },
+    ],
+    nutrition: { calories: 147, highlights: ["Vitamin C", "B vitamins", "Potassium", "Healthy fats"] },
+  },
+  {
+    id: "feijoa",
+    name: "Feijoa",
+    emoji: "🟢",
+    variety: "Coolidge",
+    imageUrl: "https://images.unsplash.com/photo-1568822617270-2c1e1c7a5e37?w=800&q=90&fit=crop",
+    seasonMonths: [9, 10, 11, 12],
+    peakMonth: 10,
+    regions: ["Pacific", "Southeast"],
+    flavorProfile: ["floral", "guava-like", "tropical"],
+    colorPalette: { primary: "#F0FFF4", accent: "#16A34A" },
+    description: "Also called pineapple guava, feijoa has an extraordinary aroma — floral, tropical, and completely unique. California and Florida grow them in small quantities; scoop out the flesh like a kiwi.",
+    storageTips: "Ripen at room temperature until slightly soft and fragrant. Refrigerate once ripe for up to a week.",
+    funFact: "Feijoa is the national fruit of New Zealand, where it grows wild in backyards across the country.",
+    recipes: [
+      { name: "Feijoa Chutney", description: "Feijoa flesh simmered with ginger, apple cider vinegar, and spices. Outstanding with cheese boards and cold meats." },
+      { name: "Feijoa Crumble", description: "The tartness of feijoa softens beautifully under a buttery oat crumble. Serve warm with cream." },
+      { name: "Feijoa Smoothie", description: "Feijoa flesh, banana, ginger, and coconut water. The aroma transforms the whole drink." },
+    ],
+    nutrition: { calories: 55, highlights: ["Vitamin C", "Folate", "Potassium", "Fiber"] },
   },
   {
     id: "fig",
@@ -227,6 +422,33 @@ export const fruits: Fruit[] = [
     description: "California produces nearly all US figs. They don't ripen after picking, so a fig found at peak season is a gift — jammy, fragrant, and intensely flavored.",
     storageTips: "Extremely perishable — eat within 1–2 days. Store in a single layer in the fridge.",
     funFact: "Figs aren't actually a fruit — they're an inverted flower with the blossoms inside the fleshy pod.",
+    recipes: [
+      { name: "Fig & Gorgonzola Flatbread", description: "Fresh figs, crumbled gorgonzola, caramelized onions, and walnuts on thin flatbread. Sweet, salty, funky." },
+      { name: "Roasted Figs with Honey", description: "Halved figs roasted with honey and thyme until caramelized. Serve with vanilla ice cream or ricotta." },
+      { name: "Fig Jam", description: "Fresh figs with sugar and lemon — the natural pectin in figs means it sets perfectly. Magnificent with cheese." },
+    ],
+    nutrition: { calories: 74, highlights: ["Calcium", "Potassium", "Fiber", "Vitamin B6"] },
+  },
+  {
+    id: "gooseberry",
+    name: "Gooseberry",
+    emoji: "🟢",
+    variety: "Invicta",
+    imageUrl: "https://images.unsplash.com/photo-1615484477778-ca3b77940c25?w=800&q=90&fit=crop",
+    seasonMonths: [6, 7, 8],
+    peakMonth: 7,
+    regions: ["Northeast", "Midwest", "Mountain", "Pacific"],
+    flavorProfile: ["tart", "tropical", "complex"],
+    colorPalette: { primary: "#F0FFF4", accent: "#16A34A" },
+    description: "Green gooseberries are intensely tart when underripe — almost inedible raw. But at peak ripeness, they develop a surprising tropical sweetness and complex flavor.",
+    storageTips: "Refrigerate for up to a week. Freeze easily for year-round use in pies and jams.",
+    funFact: "Gooseberries were once the most popular small fruit in England — more common than strawberries.",
+    recipes: [
+      { name: "Gooseberry Fool", description: "Sweetened gooseberry purée folded into whipped cream. The quintessential British summer dessert." },
+      { name: "Gooseberry & Elderflower Jam", description: "High-pectin gooseberries set perfectly into a floral, tart jam with elderflower cordial." },
+      { name: "Mackerel with Gooseberry Sauce", description: "The classic British pairing — the tartness cuts through the rich oily fish perfectly." },
+    ],
+    nutrition: { calories: 44, highlights: ["Vitamin C", "Vitamin B5", "Copper", "Manganese"] },
   },
   {
     id: "grape",
@@ -242,6 +464,12 @@ export const fruits: Fruit[] = [
     description: "Concord grapes are the definitive American grape — intensely flavored, deeply fragrant, and available for only a few weeks each fall in the Northeast.",
     storageTips: "Refrigerate unwashed. Rinse just before eating. Best within a week.",
     funFact: "It takes about 1.2 pounds of grapes to produce a single bottle of wine.",
+    recipes: [
+      { name: "Roasted Grape & Brie Crostini", description: "Grapes roasted with thyme and olive oil until jammy, served on toasted bread with brie. One of the best things you can do with a grape." },
+      { name: "Grape & Walnut Focaccia", description: "Grapes pressed into olive oil dough with walnuts and rosemary — a Tuscan harvest tradition." },
+      { name: "Grape Shrub Soda", description: "Concord grapes macerated with sugar and apple cider vinegar, mixed with sparkling water. Deep, complex, refreshing." },
+    ],
+    nutrition: { calories: 67, highlights: ["Resveratrol", "Vitamin K", "Vitamin C", "Antioxidants"] },
   },
   {
     id: "grapefruit",
@@ -257,6 +485,12 @@ export const fruits: Fruit[] = [
     description: "Texas Rio Star and Florida Ruby Red are peak winter fruits. The deeper the pink flesh, the sweeter and higher in antioxidants.",
     storageTips: "Refrigerate for up to three weeks. Room temperature for a week.",
     funFact: "Grapefruit gets its name from the way it grows — in clusters on the tree, like grapes.",
+    recipes: [
+      { name: "Grapefruit Broiled with Brown Sugar", description: "Halved grapefruit with brown sugar broiled until caramelized. The bitterness mellows dramatically under heat." },
+      { name: "Paloma", description: "Fresh grapefruit juice with tequila, lime, and sparkling water. Mexico's most beloved cocktail." },
+      { name: "Grapefruit Ceviche", description: "Grapefruit segments with fish cured in citrus, jalapeño, red onion, and cilantro. Brighter and more complex than lime-only versions." },
+    ],
+    nutrition: { calories: 42, highlights: ["Vitamin C", "Vitamin A", "Lycopene", "Naringenin"] },
   },
   {
     id: "guava",
@@ -272,6 +506,12 @@ export const fruits: Fruit[] = [
     description: "Hawaiian and Florida guavas are intensely fragrant — you can smell a ripe one across the room. The pink-fleshed varieties are sweeter than the white-fleshed types.",
     storageTips: "Ripen at room temperature until fragrant and slightly soft. Refrigerate ripe guavas for up to 4 days.",
     funFact: "Guava has 4x more vitamin C than an orange — a single fruit provides more than your daily requirement.",
+    recipes: [
+      { name: "Guava Paste & Cheese Empanadas", description: "The classic Cuban combination — guava paste with cream cheese or queso blanco in a flaky dough. Extraordinary." },
+      { name: "Guava Barbecue Sauce", description: "Guava purée with chipotle, garlic, and apple cider vinegar. Tropical heat for grilled meats." },
+      { name: "Guava Juice", description: "Fresh guavas blended with water and a little sugar, strained through a sieve. The quintessential Caribbean refreshment." },
+    ],
+    nutrition: { calories: 68, highlights: ["Vitamin C (4x oranges)", "Lycopene", "Folate", "Fiber"] },
   },
   {
     id: "honeydew",
@@ -287,6 +527,33 @@ export const fruits: Fruit[] = [
     description: "The perfect honeydew has a creamy yellow-white skin (not pale green) and a slightly waxy feel. Press the blossom end — it should have a faint give.",
     storageTips: "Ripen at room temperature until fragrant. Refrigerate cut melon for up to 3 days.",
     funFact: "Honeydew gets its name from its unusually high natural sugar content — it's one of the sweetest melons.",
+    recipes: [
+      { name: "Honeydew Mint Granita", description: "Blended honeydew frozen and scraped into icy flakes with fresh mint and lime. The most refreshing thing you can eat in August." },
+      { name: "Honeydew & Cucumber Salad", description: "Cubed melon and cucumber with lime, chili, and mint. A cooling combination for hot days." },
+      { name: "Honeydew Smoothie", description: "Fresh honeydew, coconut water, ginger, and lime. Hydrating and tropical." },
+    ],
+    nutrition: { calories: 36, highlights: ["Vitamin C", "Potassium", "B vitamins", "Hydrating"] },
+  },
+  {
+    id: "jackfruit",
+    name: "Jackfruit",
+    emoji: "🟡",
+    variety: "Sweet Yellow",
+    imageUrl: "https://images.unsplash.com/photo-1571575173700-afb9492e6a50?w=800&q=90&fit=crop",
+    seasonMonths: [3, 4, 5, 6, 7, 8, 9],
+    peakMonth: 6,
+    regions: ["Pacific", "Southeast"],
+    flavorProfile: ["tropical", "sweet", "fruity"],
+    colorPalette: { primary: "#FEFCE8", accent: "#CA8A04" },
+    description: "The largest tree fruit in the world — individual jackfruits can weigh over 100 lbs. Hawaii and Florida grow them; the ripe fruit has a complex tropical sweetness, while unripe jackfruit has a meaty texture.",
+    storageTips: "Ripe jackfruit refrigerates for up to a week. Unripe/green jackfruit can be stored like a vegetable.",
+    funFact: "Jackfruit is the world's largest tree-borne fruit and is the national fruit of Bangladesh and Sri Lanka.",
+    recipes: [
+      { name: "Pulled Jackfruit Tacos", description: "Young jackfruit shredded and cooked with smoky barbecue spices — a convincing pulled pork substitute." },
+      { name: "Jackfruit Curry", description: "Ripe jackfruit in a coconut milk curry with turmeric and cardamom. Common throughout South and Southeast Asia." },
+      { name: "Fresh Jackfruit with Sticky Rice", description: "Sweet ripe jackfruit segments alongside coconut sticky rice. A classic Thai combination." },
+    ],
+    nutrition: { calories: 95, highlights: ["Vitamin C", "Potassium", "Fiber", "Vitamin B6"] },
   },
   {
     id: "kiwi",
@@ -302,6 +569,12 @@ export const fruits: Fruit[] = [
     description: "California grows 98% of US kiwis. The Hayward variety harvested in fall has a bright tartness that imported kiwis rarely match.",
     storageTips: "Ripen at room temperature (takes a few days). Once soft, refrigerate for up to a week.",
     funFact: "You can eat the fuzzy skin of a kiwi — it's edible and contains even more fiber and vitamin C than the flesh.",
+    recipes: [
+      { name: "Kiwi Pavlova", description: "Crispy meringue shells topped with whipped cream and sliced kiwi. The New Zealand national dessert." },
+      { name: "Kiwi & Avocado Toast", description: "Smashed avocado topped with sliced kiwi, chili flakes, and lime zest. Unexpected and excellent." },
+      { name: "Kiwi Salsa Verde", description: "Diced kiwi with jalapeño, red onion, cilantro, and lime. Pairs beautifully with grilled fish or shrimp tacos." },
+    ],
+    nutrition: { calories: 61, highlights: ["Vitamin C (2x oranges)", "Vitamin K", "Folate", "Actinidin enzyme"] },
   },
   {
     id: "kumquat",
@@ -317,6 +590,12 @@ export const fruits: Fruit[] = [
     description: "Kumquats are eaten whole — the sweet skin and sour flesh balance each other perfectly. The Nagami from California is the most common and most complex.",
     storageTips: "Store at room temperature for a week, or refrigerate for up to a month.",
     funFact: "Kumquats are the only citrus where the skin is sweeter than the juice — designed to be eaten skin and all.",
+    recipes: [
+      { name: "Kumquat Marmalade", description: "Sliced kumquats cooked with their seeds (for pectin) and sugar. The easiest marmalade you'll ever make." },
+      { name: "Kumquat & Duck Breast", description: "Pan-seared duck with a kumquat reduction sauce — the bright tartness cuts through the rich meat perfectly." },
+      { name: "Kumquat Gin & Tonic", description: "Muddled kumquats with gin, elderflower liqueur, and tonic. The whole kumquat adds beautiful bitterness." },
+    ],
+    nutrition: { calories: 71, highlights: ["Vitamin C", "Fiber", "Calcium", "Antioxidants"] },
   },
   {
     id: "lemon",
@@ -332,6 +611,12 @@ export const fruits: Fruit[] = [
     description: "California Eureka lemons peak in late winter through spring — the skin is thin, the juice abundant, and the fragrance unmistakable. Meyer lemons arrive December through May.",
     storageTips: "Room temperature for a week, refrigerated for a month. Zest before juicing and freeze the zest.",
     funFact: "Lemons keep producing fruit all year, but peak production is in winter and spring.",
+    recipes: [
+      { name: "Lemon Curd", description: "Eggs, butter, sugar, and fresh lemon juice cooked until silky. Keeps for weeks and transforms everything it touches." },
+      { name: "Preserved Lemons", description: "Salt-cured lemons that ferment for a month into something intensely aromatic. Essential in Moroccan cooking." },
+      { name: "Lemon Pasta (Pasta al Limone)", description: "Hot pasta tossed with lemon zest, pasta water, parmesan, and olive oil. Five ingredients, ten minutes, remarkable." },
+    ],
+    nutrition: { calories: 29, highlights: ["Vitamin C", "Citric acid", "Flavonoids", "Pectin"] },
   },
   {
     id: "lime",
@@ -347,6 +632,33 @@ export const fruits: Fruit[] = [
     description: "Florida and Texas produce most domestic limes in summer. Persian limes are the large seedless variety most familiar from grocery stores; Key limes are smaller and more aromatic.",
     storageTips: "Room temperature for a week, refrigerated for a month. Juice and freeze in ice cube trays.",
     funFact: "Key limes are actually yellow when fully ripe — the green ones found in stores are picked early.",
+    recipes: [
+      { name: "Key Lime Pie", description: "Key lime juice with sweetened condensed milk in a graham cracker crust. The ratio of tart to sweet is perfect." },
+      { name: "Ceviche", description: "Raw fish 'cooked' by the acid in fresh lime juice — the essential technique of Pacific Latin American cuisine." },
+      { name: "Classic Margarita", description: "Fresh lime juice, tequila, and triple sec. The lime quality makes or breaks it — fresh only." },
+    ],
+    nutrition: { calories: 30, highlights: ["Vitamin C", "Citric acid", "Flavonoids", "Iron absorption aid"] },
+  },
+  {
+    id: "longan",
+    name: "Longan",
+    emoji: "🟤",
+    variety: "Kohala",
+    imageUrl: "https://images.unsplash.com/photo-1597733336794-86b39b98e167?w=800&q=90&fit=crop",
+    seasonMonths: [6, 7, 8, 9],
+    peakMonth: 8,
+    regions: ["Pacific", "Southeast"],
+    flavorProfile: ["sweet", "floral", "musky"],
+    colorPalette: { primary: "#FDF5E6", accent: "#92400E" },
+    description: "Longan — 'dragon eye' in Cantonese — is a close relative of lychee. Hawaii and Florida grow them in summer. Peel the thin shell to find translucent, juicy flesh with a floral sweetness.",
+    storageTips: "Refrigerate in clusters for up to two weeks. Peel just before eating.",
+    funFact: "Longan is used in traditional Chinese medicine as a tonic for the heart and spleen, and is given to new mothers postpartum.",
+    recipes: [
+      { name: "Longan & Jasmine Tea Jelly", description: "Longan syrup set with agar into a delicate jelly, flavored with jasmine tea. Classic dim sum dessert." },
+      { name: "Longan Sorbet", description: "Blended longan flesh churned into a light, fragrant sorbet. The floral notes intensify when frozen." },
+      { name: "Longan Fruit Salad", description: "Peeled longans with mango, papaya, and fresh mint — a Southeast Asian fruit salad dressed with lime and chili." },
+    ],
+    nutrition: { calories: 60, highlights: ["Vitamin C", "Riboflavin", "Potassium", "Iron"] },
   },
   {
     id: "lychee",
@@ -362,6 +674,12 @@ export const fruits: Fruit[] = [
     description: "Florida and California grow lychees for a brief summer window. Peel the rough pink skin to find translucent jelly-like flesh with an extraordinary floral sweetness.",
     storageTips: "Refrigerate in their skins for up to two weeks. Remove skin just before eating.",
     funFact: "Lychees have been cultivated in China for over 2,000 years and were considered a delicacy by imperial courts.",
+    recipes: [
+      { name: "Lychee Rose Cocktail", description: "Lychee juice, rose water, vodka, and lime — floral, delicate, and impossibly fragrant." },
+      { name: "Lychee & Coconut Panna Cotta", description: "Coconut milk panna cotta topped with fresh lychee halves and a drizzle of rose syrup." },
+      { name: "Lychee Salsa for Fish", description: "Peeled lychees with jalapeño, red onion, cilantro, and lime. Extraordinary over grilled halibut." },
+    ],
+    nutrition: { calories: 66, highlights: ["Vitamin C", "Copper", "Potassium", "Oligonol antioxidant"] },
   },
   {
     id: "mandarin",
@@ -377,6 +695,33 @@ export const fruits: Fruit[] = [
     description: "Satsuma mandarins are the first citrus of the season — arriving in October, they signal the start of citrus season with their almost-seedless, effortlessly sweet segments.",
     storageTips: "Room temperature for a week, refrigerated for up to a month.",
     funFact: "Satsumas originated in Japan nearly 700 years ago — they're named after the province where they were first cultivated.",
+    recipes: [
+      { name: "Mandarin Upside-Down Cake", description: "Caramelized mandarin slices under a buttery almond sponge. The citrus oil perfumes the whole cake." },
+      { name: "Mandarin Chicken", description: "Pan-seared chicken with a bright mandarin pan sauce with ginger and soy. 20 minutes, one pan." },
+      { name: "Mandarin & Endive Salad", description: "Bitter endive balanced with sweet mandarin segments, candied pecans, and a honey-Dijon dressing." },
+    ],
+    nutrition: { calories: 53, highlights: ["Vitamin C", "Beta-carotene", "Flavonoids", "Fiber"] },
+  },
+  {
+    id: "mangosteen",
+    name: "Mangosteen",
+    emoji: "🟣",
+    variety: "Purple Mangosteen",
+    imageUrl: "https://images.unsplash.com/photo-1568822617270-2c1e1c7a5e37?w=800&q=90&fit=crop",
+    seasonMonths: [5, 6, 7, 8],
+    peakMonth: 6,
+    regions: ["Pacific", "Southeast"],
+    flavorProfile: ["sweet", "floral", "complex"],
+    colorPalette: { primary: "#F5F3FF", accent: "#7C3AED" },
+    description: "Called the Queen of Fruits in Southeast Asia, mangosteen has a hard purple rind hiding snow-white segments of extraordinary flavor — simultaneously sweet, tangy, and floral.",
+    storageTips: "Store at room temperature. Score around the middle and twist to open. Eat within a few days of purchase.",
+    funFact: "Queen Victoria allegedly offered a reward to anyone who could bring her a fresh mangosteen — the fruit was so prized in Europe it was nearly impossible to obtain.",
+    recipes: [
+      { name: "Mangosteen & Coconut Smoothie", description: "Mangosteen flesh blended with coconut milk and a little honey. The flavor is transcendent." },
+      { name: "Mangosteen Sorbet", description: "Pureed mangosteen juice frozen into a delicate sorbet. No other ingredients needed — the flavor stands alone." },
+      { name: "Mangosteen Fruit Salad", description: "Mangosteen segments with sliced starfruit and mango, dressed with lime and a touch of chili." },
+    ],
+    nutrition: { calories: 63, highlights: ["Xanthones antioxidants", "Vitamin C", "Folate", "Fiber"] },
   },
   {
     id: "mango",
@@ -392,6 +737,33 @@ export const fruits: Fruit[] = [
     description: "Ataulfo mangos are buttery, fiber-free, and deeply sweet. The skin wrinkles slightly when perfectly ripe — that's the signal to eat it today.",
     storageTips: "Ripen at room temperature. Refrigerate once soft.",
     funFact: "Mangos are related to cashews and pistachios — all members of the Anacardiaceae family.",
+    recipes: [
+      { name: "Mango Lassi", description: "Blended mango, yogurt, milk, sugar, and cardamom. The essential Indian summer drink." },
+      { name: "Mango Sticky Rice", description: "Ripe mango over warm glutinous rice with sweetened coconut milk. Thailand's most iconic dessert." },
+      { name: "Mango Habanero Salsa", description: "Diced mango with habanero, red onion, lime, and cilantro. The sweet-heat combination is extraordinary." },
+    ],
+    nutrition: { calories: 60, highlights: ["Vitamin C", "Vitamin A", "Folate", "Beta-carotene"] },
+  },
+  {
+    id: "mulberry",
+    name: "Mulberry",
+    emoji: "🟣",
+    variety: "Illinois Everbearing",
+    imageUrl: "https://images.unsplash.com/photo-1615484477778-ca3b77940c25?w=800&q=90&fit=crop",
+    seasonMonths: [5, 6, 7],
+    peakMonth: 6,
+    regions: ["Southeast", "Midwest", "Northeast", "South Central", "Pacific"],
+    flavorProfile: ["sweet", "earthy", "complex"],
+    colorPalette: { primary: "#F5F3FF", accent: "#6D28D9" },
+    description: "Mulberries are almost never sold commercially — they're too fragile to ship. If you find a tree (they grow wild across the US), you'll experience one of summer's great secret pleasures.",
+    storageTips: "Extremely perishable — eat the day you pick them. Freeze immediately for longer storage.",
+    funFact: "Silkworms eat only mulberry leaves — the entire global silk industry depends on mulberry trees.",
+    recipes: [
+      { name: "Mulberry Jam", description: "Mulberries are high in pectin — cook with sugar and lemon for a deeply flavored jam that sets easily." },
+      { name: "Mulberry Crumble Bars", description: "Shortbread base, mulberry jam filling, crumble top. The intense berry flavor shines through." },
+      { name: "Mulberry Syrup", description: "Simmered mulberries strained through cheesecloth — pour over pancakes, ice cream, or into cocktails." },
+    ],
+    nutrition: { calories: 43, highlights: ["Vitamin C", "Iron", "Vitamin K", "Resveratrol"] },
   },
   {
     id: "nectarine",
@@ -407,6 +779,12 @@ export const fruits: Fruit[] = [
     description: "Nectarines are simply smooth-skinned peaches — a single gene mutation separates them. California grows 95% of US nectarines, and summer fire varieties are among the best.",
     storageTips: "Ripen at room temperature until fragrant and soft near the stem. Refrigerate once ripe.",
     funFact: "Nectarines and peaches occasionally grow on the same tree — and you can graft one onto the other.",
+    recipes: [
+      { name: "Grilled Nectarines with Mascarpone", description: "Halved nectarines grilled until caramelized, served with whipped mascarpone and honey." },
+      { name: "Nectarine & Burrata Salad", description: "Sliced nectarines with torn burrata, basil, prosciutto, and a balsamic glaze. Summer on a plate." },
+      { name: "Nectarine Galette", description: "Rustic free-form tart with sliced nectarines on buttery pastry. Easier than pie, better than most." },
+    ],
+    nutrition: { calories: 44, highlights: ["Vitamin C", "Vitamin A", "Potassium", "Niacin"] },
   },
   {
     id: "orange",
@@ -422,6 +800,12 @@ export const fruits: Fruit[] = [
     description: "California Navel oranges peak December through March. The navel is actually a second, undeveloped fruit — and it's what makes them seedless and perfect for eating out of hand.",
     storageTips: "Room temperature for a week, refrigerated for up to three weeks.",
     funFact: "All navel oranges are clones — they can't produce seeds, so every tree is grafted from cuttings of the original Brazilian tree.",
+    recipes: [
+      { name: "Orange Cardamom Cake", description: "Whole orange (peel and all) blended into a moist, intensely flavored almond cake with cardamom." },
+      { name: "Duck à l'Orange", description: "Pan-roasted duck breast with a classic orange pan sauce. The sweet-acid balance cuts through the richness." },
+      { name: "Orange & Olive Salad", description: "Supremed oranges with Castelvetrano olives, shaved fennel, and fresh mint. Sicilian simplicity." },
+    ],
+    nutrition: { calories: 47, highlights: ["Vitamin C", "Thiamine", "Folate", "Hesperidin flavonoid"] },
   },
   {
     id: "papaya",
@@ -437,6 +821,12 @@ export const fruits: Fruit[] = [
     description: "Hawaii's Rainbow papaya is smaller, sweeter, and more complex than imported varieties. Scoop out the black seeds (they're edible and peppery) and squeeze lime over the flesh.",
     storageTips: "Ripen at room temperature until golden and slightly soft. Refrigerate once ripe for up to a week.",
     funFact: "Papaya contains an enzyme called papain that breaks down proteins — it's used as a meat tenderizer.",
+    recipes: [
+      { name: "Som Tum (Green Papaya Salad)", description: "Shredded unripe papaya pounded with lime, fish sauce, chilies, and peanuts. Thailand's most popular salad." },
+      { name: "Papaya Boat with Lime", description: "Halved papaya with the seeds scooped out, filled with a squeeze of lime and fresh mint. Breakfast perfection." },
+      { name: "Papaya Smoothie", description: "Ripe papaya blended with coconut milk, lime, and ginger. Silky, tropical, and digestive." },
+    ],
+    nutrition: { calories: 43, highlights: ["Vitamin C", "Vitamin A", "Papain enzyme", "Folate"] },
   },
   {
     id: "passion-fruit",
@@ -452,6 +842,12 @@ export const fruits: Fruit[] = [
     description: "California and Florida grow passion fruit that's far superior to imported. When the skin wrinkles, it's at peak — the seeds and surrounding pulp are tangy, perfumed, and extraordinary.",
     storageTips: "Ripen at room temperature until wrinkled. Refrigerate ripe fruit for a week. Scoop and freeze the pulp.",
     funFact: "The passion fruit flower was named by missionaries, who saw the structure as symbolic of the Passion of Christ.",
+    recipes: [
+      { name: "Passion Fruit Curd", description: "Passion fruit pulp cooked with eggs, butter, and sugar into a luminously tart, intensely fragrant curd." },
+      { name: "Passion Fruit & Mango Pavlova", description: "Crispy meringue base, whipped cream, fresh mango, and passion fruit pulp. The Southern Hemisphere's greatest dessert." },
+      { name: "Passion Fruit Daiquiri", description: "Passion fruit pulp, rum, lime, and simple syrup. The tropical acidity makes this daiquiri extraordinary." },
+    ],
+    nutrition: { calories: 97, highlights: ["Vitamin C", "Vitamin A", "Iron", "Fiber", "Magnesium"] },
   },
   {
     id: "peach",
@@ -467,6 +863,12 @@ export const fruits: Fruit[] = [
     description: "Peak season brings the sweetest, most fragrant peaches. Look for firm fruit with a sweet fragrance at the stem — if you can smell it, it's ready.",
     storageTips: "Store at room temperature until ripe, then refrigerate. Never store in plastic bags.",
     funFact: "China produces more peaches than any other country — about 60% of the world's supply.",
+    recipes: [
+      { name: "Peach Burrata Toast", description: "Thick burrata on grilled sourdough with sliced ripe peach, prosciutto, and a drizzle of hot honey." },
+      { name: "Bellini", description: "White peach purée and prosecco. Harry's Bar, Venice, 1948. Still perfect." },
+      { name: "Peach Cobbler", description: "Sliced peaches under a buttery biscuit topping, baked until bubbling. Summer's greatest comfort dessert." },
+    ],
+    nutrition: { calories: 39, highlights: ["Vitamin C", "Vitamin A", "Potassium", "Niacin"] },
   },
   {
     id: "pear",
@@ -482,6 +884,12 @@ export const fruits: Fruit[] = [
     description: "Oregon and Washington Bartletts are harvested while still firm and ripen at room temperature to buttery perfection. Check near the stem — if it yields to gentle pressure, it's ready.",
     storageTips: "Ripen at room temperature, then refrigerate. Pears ripen from the inside out, so check the neck.",
     funFact: "Pears are one of the few fruits that don't ripen best on the tree — they're better ripened at room temperature after picking.",
+    recipes: [
+      { name: "Pear & Gorgonzola Pizza", description: "Ripe pear slices on a white pizza with gorgonzola, walnuts, and honey. Savory-sweet and sophisticated." },
+      { name: "Poached Pears in Red Wine", description: "Pears simmered in spiced red wine until deep ruby. Elegant dessert with minimal effort." },
+      { name: "Pear & Cardamom Jam", description: "Ripe pears with cardamom, ginger, and lemon. One of fall's most fragrant preserves." },
+    ],
+    nutrition: { calories: 57, highlights: ["Fiber", "Vitamin C", "Copper", "Potassium"] },
   },
   {
     id: "persimmon",
@@ -497,6 +905,12 @@ export const fruits: Fruit[] = [
     description: "Fuyu persimmons can be eaten firm like an apple. Hachiya persimmons must be completely soft (almost liquid inside) to be sweet — underripe ones are mouth-puckering.",
     storageTips: "Fuyu: refrigerate when ripe. Hachiya: ripen at room temperature until very soft.",
     funFact: "The persimmon is the national fruit of Japan, where it has been cultivated for over a thousand years.",
+    recipes: [
+      { name: "Persimmon Pudding", description: "A quintessential American autumn dessert from the Midwest — Hachiya pulp baked into a dense, spiced pudding cake." },
+      { name: "Fuyu Persimmon Salad", description: "Sliced firm Fuyu with arugula, pomegranate seeds, toasted pecans, and a champagne vinaigrette." },
+      { name: "Persimmon Bread", description: "Hachiya pulp folded into a spiced quick bread with walnuts. The custard-like texture makes it extraordinarily moist." },
+    ],
+    nutrition: { calories: 70, highlights: ["Vitamin A", "Vitamin C", "Fiber", "Manganese"] },
   },
   {
     id: "pineapple",
@@ -512,6 +926,12 @@ export const fruits: Fruit[] = [
     description: "Maui Gold pineapples are the gold standard — lower acidity and higher sugar than Dole varieties, with golden flesh and a sweetness that makes you rethink everything you knew about pineapple.",
     storageTips: "Eat within 1–2 days of purchase for peak flavor. Refrigerate cut pineapple for up to 5 days.",
     funFact: "A pineapple plant typically produces only one fruit per year, and each fruit takes 18–20 months to fully develop.",
+    recipes: [
+      { name: "Pineapple Upside-Down Cake", description: "Caramelized pineapple rings under a buttery vanilla sponge. An American classic for good reason." },
+      { name: "Al Pastor Tacos", description: "Pork marinated in chili and achiote, cooked on a vertical spit with pineapple. The pineapple caramelizes and makes the meat extraordinary." },
+      { name: "Tepache", description: "Fermented pineapple skin and core with piloncillo and cinnamon — a Mexican probiotic drink that's sweet, tangy, and mildly fizzy." },
+    ],
+    nutrition: { calories: 50, highlights: ["Vitamin C", "Bromelain enzyme", "Manganese", "Thiamine"] },
   },
   {
     id: "plantain",
@@ -527,6 +947,12 @@ export const fruits: Fruit[] = [
     description: "Florida and Hawaii grow plantains year-round. Unlike bananas, plantains are cooked — green ones are starchy and savory, black ones are sweet and caramelized when fried.",
     storageTips: "Ripen at room temperature. The blacker the skin, the sweeter the flesh — black is peak sweetness.",
     funFact: "Plantains are a staple food for over 100 million people in Africa, Latin America, and the Caribbean.",
+    recipes: [
+      { name: "Tostones (Twice-Fried Plantains)", description: "Green plantain slices fried, smashed flat, and fried again until crispy. The Caribbean's essential side dish." },
+      { name: "Maduros (Sweet Fried Plantains)", description: "Black ripe plantain slices fried in oil until caramelized and tender. Sweet, custardy, and extraordinary." },
+      { name: "Mofongo", description: "Fried green plantains mashed with garlic, olive oil, and pork cracklings. Puerto Rico's national dish." },
+    ],
+    nutrition: { calories: 122, highlights: ["Potassium", "Vitamin C", "Vitamin B6", "Complex carbohydrates"] },
   },
   {
     id: "plum",
@@ -542,6 +968,12 @@ export const fruits: Fruit[] = [
     description: "Luther Burbank's Santa Rosa is California's most beloved plum — red-purple skin gives way to golden flesh that's simultaneously sweet and tart. July is peak season.",
     storageTips: "Ripen at room temperature until slightly soft. Refrigerate for up to a week.",
     funFact: "There are over 2,000 varieties of plum — from tiny to large, yellow to black, mild to intensely flavored.",
+    recipes: [
+      { name: "Plum Kuchen", description: "German plum cake with a custard layer under the fruit — the juices seep into the batter and create something magical." },
+      { name: "Roasted Plum Duck Sauce", description: "Halved plums roasted with star anise and soy — the sauce for Peking duck is traditionally made this way." },
+      { name: "Plum Shrub", description: "Macerated plums in apple cider vinegar and sugar. A complex drinking vinegar that transforms sparkling water or cocktails." },
+    ],
+    nutrition: { calories: 46, highlights: ["Vitamin C", "Vitamin K", "Potassium", "Sorbitol for digestion"] },
   },
   {
     id: "pomegranate",
@@ -557,6 +989,12 @@ export const fruits: Fruit[] = [
     description: "California Wonderful pomegranates define the season — their ruby arils burst with a tart-sweet juice that stains everything beautifully. The thicker the skin, the better the fruit inside.",
     storageTips: "Refrigerate whole for up to a month. Arils freeze beautifully for up to a year.",
     funFact: "A single pomegranate contains about 600 seeds — each called an aril — held in a white membrane.",
+    recipes: [
+      { name: "Pomegranate Molasses Chicken", description: "Chicken braised with pomegranate molasses, walnut paste, and spices — the Persian classic Fesenjan." },
+      { name: "Winter Grain Bowl", description: "Farro with pomegranate arils, roasted squash, toasted walnuts, and a pomegranate-tahini dressing." },
+      { name: "Pomegranate Spritz", description: "Pomegranate juice with prosecco, a splash of elderflower liqueur, and mint. A festive aperitivo." },
+    ],
+    nutrition: { calories: 83, highlights: ["Punicalagins antioxidants", "Vitamin C", "Folate", "Potassium"] },
   },
   {
     id: "pomelo",
@@ -572,6 +1010,12 @@ export const fruits: Fruit[] = [
     description: "The ancestor of the grapefruit, pomelos are sweeter and less bitter. Peel through the thick white pith to find large, juicy segments — each membrane can be pulled away easily.",
     storageTips: "Room temperature for a week, refrigerated for up to a month.",
     funFact: "The pomelo is the largest citrus fruit in the world, and the original parent of the grapefruit.",
+    recipes: [
+      { name: "Thai Pomelo Salad (Yam Som O)", description: "Pomelo segments with shrimp, toasted coconut, peanuts, lime, and fish sauce. One of Thailand's most refreshing dishes." },
+      { name: "Pomelo Curd", description: "Sweeter and more floral than grapefruit curd. Use as a tart filling or serve with yogurt." },
+      { name: "Pomelo & Avocado Salad", description: "Pomelo segments with creamy avocado, thinly sliced shallots, and a sesame-soy dressing." },
+    ],
+    nutrition: { calories: 38, highlights: ["Vitamin C", "Potassium", "Fiber", "Bioflavonoids"] },
   },
   {
     id: "quince",
@@ -587,6 +1031,33 @@ export const fruits: Fruit[] = [
     description: "Quince is almost always cooked — the raw fruit is astringent and hard. But simmer it with sugar and it transforms into something magical: rose-pink, floral, and deeply aromatic.",
     storageTips: "Store at room temperature for weeks. Refrigerate for up to two months.",
     funFact: "When quince is cooked, the cell walls release chemicals that turn it from pale yellow to beautiful pink or red.",
+    recipes: [
+      { name: "Membrillo (Quince Paste)", description: "Quince pulp cooked with sugar until set solid — the essential companion to Manchego cheese." },
+      { name: "Quince Tart Tatin", description: "Quince slowly caramelized in butter and sugar, then baked under puff pastry and inverted. Deep amber, perfumed, extraordinary." },
+      { name: "Braised Lamb with Quince", description: "Persian-inspired lamb slow-cooked with quince, saffron, and cinnamon. The quince softens into the sauce beautifully." },
+    ],
+    nutrition: { calories: 57, highlights: ["Vitamin C", "Fiber", "Copper", "Iron"] },
+  },
+  {
+    id: "rambutan",
+    name: "Rambutan",
+    emoji: "🔴",
+    variety: "Rongrien",
+    imageUrl: "https://images.unsplash.com/photo-1563746924237-f81551b78f2b?w=800&q=90&fit=crop",
+    seasonMonths: [6, 7, 8, 9, 10],
+    peakMonth: 8,
+    regions: ["Pacific", "Southeast"],
+    flavorProfile: ["sweet", "juicy", "delicate"],
+    colorPalette: { primary: "#FFF0F3", accent: "#E11D48" },
+    description: "Rambutan looks like a sea creature — a spiky red exterior hiding translucent, lychee-like flesh. Hawaii and Florida grow them; look for bright red spines (not blackened) for peak freshness.",
+    storageTips: "Refrigerate for up to two weeks. Score and tear the spiky skin to open. Eat within the week once refrigerated.",
+    funFact: "Rambutan means 'hair' in Malay — named for the long, soft spines covering the fruit.",
+    recipes: [
+      { name: "Rambutan Fruit Salad", description: "Peeled rambutan with mango and starfruit, dressed with lime juice and a pinch of chili salt." },
+      { name: "Rambutan Coconut Sorbet", description: "Blended rambutan flesh with coconut milk, frozen into a tropical sorbet. Light and fragrant." },
+      { name: "Rambutan Salsa", description: "Peeled rambutan with cucumber, mint, lime, and a touch of fish sauce — unexpectedly excellent with grilled fish." },
+    ],
+    nutrition: { calories: 68, highlights: ["Vitamin C", "Iron", "Copper", "Potassium"] },
   },
   {
     id: "raspberry",
@@ -602,6 +1073,33 @@ export const fruits: Fruit[] = [
     description: "Heritage raspberries produce two crops — summer and fall. The fall crop is often more flavorful, as cooler temperatures concentrate the berry's complex tart-sweet flavor.",
     storageTips: "The most perishable fruit — eat the day you buy them. Refrigerate in a single layer, never wash until eating.",
     funFact: "Raspberries are not berries — they're aggregate fruits, with each tiny bump being a separate drupe.",
+    recipes: [
+      { name: "Raspberry Soufflé", description: "Raspberry purée folded into a meringue base, baked until dramatically risen. Harder than it looks, worth every attempt." },
+      { name: "Raspberry Vinaigrette", description: "Fresh raspberries blended with champagne vinegar, honey, and Dijon. The color is extraordinary." },
+      { name: "Chocolate Raspberry Tart", description: "Dark chocolate ganache tart shell filled with fresh raspberries. The classic pairing at its finest." },
+    ],
+    nutrition: { calories: 52, highlights: ["Vitamin C", "Fiber", "Manganese", "Ellagic acid antioxidant"] },
+  },
+  {
+    id: "rhubarb",
+    name: "Rhubarb",
+    emoji: "🌿",
+    variety: "Victoria",
+    imageUrl: "https://images.unsplash.com/photo-1589375669753-59e7e5e81ee7?w=800&q=90&fit=crop",
+    seasonMonths: [3, 4, 5, 6],
+    peakMonth: 5,
+    regions: ["Northeast", "Midwest", "Mountain", "Pacific"],
+    flavorProfile: ["very tart", "grassy", "complex"],
+    colorPalette: { primary: "#FFF0F3", accent: "#E11D48" },
+    description: "Rhubarb is technically a vegetable but used as a fruit. The deep red stalks of spring are more tender and less bitter than later-season ones. Always cook it — the leaves are toxic.",
+    storageTips: "Wrap stalks in a damp cloth and refrigerate for up to a week. Chop and freeze raw for up to a year.",
+    funFact: "Rhubarb leaves contain oxalic acid and are toxic — only the stalks are edible.",
+    recipes: [
+      { name: "Strawberry Rhubarb Pie", description: "The definitive spring pie — rhubarb's tartness and strawberry's sweetness balance each other perfectly under a buttery crust." },
+      { name: "Rhubarb Compote", description: "Chopped rhubarb simmered with sugar and orange zest until jammy. Stir into yogurt or serve with panna cotta." },
+      { name: "Rhubarb Gin Sling", description: "Rhubarb-infused simple syrup with gin, lemon, and club soda. The pink color is natural and beautiful." },
+    ],
+    nutrition: { calories: 21, highlights: ["Vitamin K", "Calcium", "Vitamin C", "Very low calorie"] },
   },
   {
     id: "starfruit",
@@ -617,6 +1115,12 @@ export const fruits: Fruit[] = [
     description: "Florida's Arkin starfruit are perfectly ripe when the ribs turn golden with just a hint of green. Slice crosswise for perfect stars — the entire fruit is edible, skin and all.",
     storageTips: "Ripen at room temperature until golden. Refrigerate for up to a week.",
     funFact: "Starfruit is one of the few fruits where the entire fruit is edible — no peeling or seeding required.",
+    recipes: [
+      { name: "Starfruit & Mango Salsa", description: "Star-cut starfruit with diced mango, jalapeño, cilantro, and lime. Beautiful presentation, great flavor." },
+      { name: "Starfruit Chutney", description: "Sliced starfruit cooked with ginger, brown sugar, and apple cider vinegar. Outstanding with grilled pork or chicken." },
+      { name: "Starfruit Agua Fresca", description: "Blended starfruit with water, lime, and sugar, strained and chilled. The star shapes make a stunning garnish." },
+    ],
+    nutrition: { calories: 31, highlights: ["Vitamin C", "Fiber", "Potassium", "Antioxidants"] },
   },
   {
     id: "strawberry",
@@ -632,6 +1136,12 @@ export const fruits: Fruit[] = [
     description: "Spring strawberries are the first sign of fruit season. The smaller ones pack the most intense flavor — look for deep red color all the way to the stem.",
     storageTips: "Don't wash until ready to eat. Refrigerate unwashed in a single layer.",
     funFact: "Strawberries are the only fruit with seeds on the outside — about 200 per berry.",
+    recipes: [
+      { name: "Strawberry Shortcake", description: "Fresh sliced strawberries macerated with sugar, on a buttery biscuit with whipped cream. The classic for a reason." },
+      { name: "Strawberry Balsamic Bruschetta", description: "Macerated strawberries with balsamic reduction on toasted bread with ricotta. Sweet, acidic, creamy, perfect." },
+      { name: "Strawberry Daiquiri (Shaken)", description: "Fresh strawberries muddled with rum, lime, and simple syrup — shaken hard and strained. Nothing frozen about it." },
+    ],
+    nutrition: { calories: 32, highlights: ["Vitamin C (98% DV)", "Manganese", "Folate", "Anthocyanins"] },
   },
   {
     id: "tangerine",
@@ -647,6 +1157,12 @@ export const fruits: Fruit[] = [
     description: "Dancy tangerines have a distinctively pebbly, loose skin and bold flavor that's more complex than a mandarin. They're the original 'zipper skin' citrus — effortlessly peeled.",
     storageTips: "Room temperature for a week, refrigerated for up to two weeks.",
     funFact: "Tangerines get their name from Tangier, Morocco — the port through which they were shipped to Europe.",
+    recipes: [
+      { name: "Tangerine Posset", description: "A three-ingredient British dessert — cream, tangerine juice, and sugar simmered and set. Silky and stunning." },
+      { name: "Tangerine & Soy Glazed Salmon", description: "Tangerine juice reduced with soy, ginger, and honey into a glaze for pan-seared salmon. 20 minutes." },
+      { name: "Tangerine Creamsicle Pops", description: "Fresh tangerine juice layered with vanilla cream, frozen in molds. The childhood classic with real fruit." },
+    ],
+    nutrition: { calories: 53, highlights: ["Vitamin C", "Beta-carotene", "Folate", "Vitamin B6"] },
   },
   {
     id: "watermelon",
@@ -662,12 +1178,28 @@ export const fruits: Fruit[] = [
     description: "Georgia, Texas, and Florida lead summer watermelon. Tap the rind — a deep, hollow thud means it's ripe. The yellow spot on the bottom shows it was vine-ripened.",
     storageTips: "Store whole at room temperature. Refrigerate cut watermelon tightly wrapped for up to 5 days.",
     funFact: "Watermelons are 92% water — and every part is edible, including the white rind and black seeds.",
+    recipes: [
+      { name: "Watermelon Feta Salad", description: "Cubed watermelon with crumbled feta, fresh mint, and a drizzle of olive oil. The salt-sweet combination is perfect." },
+      { name: "Watermelon Agua Fresca", description: "Blended watermelon with lime, water, and a pinch of salt. The most refreshing drink of summer." },
+      { name: "Grilled Watermelon with Tajín", description: "Thick watermelon slices grilled until charred, sprinkled with Tajín and lime. Smoky, sweet, spicy, revelatory." },
+    ],
+    nutrition: { calories: 30, highlights: ["Lycopene", "Vitamin C", "Vitamin A", "Citrulline amino acid"] },
   },
 ];
 
 export function getInSeasonFruits(month: number, region: string): Fruit[] {
   return fruits.filter(
     (f) => f.seasonMonths.includes(month) && f.regions.includes(region)
+  );
+}
+
+export function getComingSoonFruits(month: number, region: string): Fruit[] {
+  const nextMonth = month === 12 ? 1 : month + 1;
+  return fruits.filter(
+    (f) =>
+      f.seasonMonths.includes(nextMonth) &&
+      !f.seasonMonths.includes(month) &&
+      f.regions.includes(region)
   );
 }
 
@@ -691,7 +1223,6 @@ export function formatSeasonMonths(months: number[]): string {
   if (sorted.length === 12) return "Year-round";
   const hasGap = sorted.some((m, i) => i > 0 && sorted[i] - sorted[i - 1] > 1);
   if (hasGap) {
-    // Cross-year wrap: find the largest gap
     const gapIdx = sorted.findIndex((m, i) => i > 0 && sorted[i] - sorted[i - 1] > 1);
     return `${names[sorted[gapIdx] - 1]} \u2013 ${names[sorted[gapIdx - 1] - 1]}`;
   }
