@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Fruit, formatSeasonMonths } from "@/data/fruits";
+import SeasonCalendar from "./SeasonCalendar";
 
 interface FruitInfoSheetProps {
   fruit: Fruit | null;
@@ -176,6 +177,13 @@ export default function FruitInfoSheet({
                 {fruit.description}
               </p>
 
+              {/* Season Calendar */}
+              <SeasonCalendar
+                seasonMonths={fruit.seasonMonths}
+                peakMonth={fruit.peakMonth}
+                accentColor={fruit.colorPalette.accent}
+              />
+
               {/* Nutrition */}
               <div className="mt-5 p-4 rounded-2xl" style={{ background: `${fruit.colorPalette.accent}0C` }}>
                 <div className="flex items-center justify-between mb-2">
@@ -238,13 +246,8 @@ export default function FruitInfoSheet({
                 </p>
               </div>
 
-              {/* Peak month */}
-              <div className="mt-4 text-center">
-                <p className="text-xs font-medium" style={{ color: "#B8A088" }}>
-                  Peak month:{" "}
-                  {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][fruit.peakMonth - 1]}
-                </p>
-              </div>
+              {/* Spacer for bottom safe area */}
+              <div className="h-4" />
             </div>
           </motion.div>
         </>

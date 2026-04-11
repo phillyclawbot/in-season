@@ -11,6 +11,7 @@ import FruitInfoSheet from "@/components/FruitInfoSheet";
 import RegionPicker from "@/components/RegionPicker";
 import TabBar, { Tab } from "@/components/TabBar";
 import EmptyState from "@/components/EmptyState";
+import SearchOverlay from "@/components/SearchOverlay";
 
 export default function Home() {
   const currentMonth = new Date().getMonth() + 1;
@@ -25,6 +26,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("season");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const favoriteFruits = allFruits.filter((f) => isFavorite(f.id));
 
@@ -71,16 +73,74 @@ export default function Home() {
     if (currentFruit) toggle(currentFruit.id);
   }, [currentFruit, toggle]);
 
+  const handleSearchOpen = useCallback(() => setSearchOpen(true), []);
+  const handleSearchClose = useCallback(() => setSearchOpen(false), []);
+
+  const handleSearchSelect = useCallback(
+    (fruit: { id: string }) => {
+      // Find the fruit in the current display list first
+      const displayIndex = displayFruits.findIndex((f) => f.id === fruit.id);
+      if (displayIndex !== -1) {
+        setCurrentIndex(displayIndex);
+      } else {
+        // Switch to season tab and find it there
+        setActiveTab("season");
+        const seasonIndex = inSeasonFruits.findIndex((f) => f.id === fruit.id);
+        if (seasonIndex !== -1) {
+          setTimeout(() => setCurrentIndex(seasonIndex), 50);
+        }
+      }
+      setSheetOpen(true);
+    },
+    [displayFruits, inSeasonFruits]
+  );
+
+  // Preload images for adjacent cards
+  useEffect(() => {
+    const preloadIndexes = [safeIndex + 1, safeIndex + 2];
+    preloadIndexes.forEach((idx) => {
+      const fruit = displayFruits[idx];
+      if (fruit) {
+        const img = new Image();
+        img.src = fruit.imageUrl;
+      }
+    });
+  }, [safeIndex, displayFruits]);
+
   if (loading || !favLoaded) {
     return (
       <main
-        className="flex flex-col h-dvh items-center justify-center"
+        className="flex flex-col h-dvh items-center justify-center gap-4"
         style={{ background: "#FFF8F0" }}
       >
-        <div className="text-4xl mb-3">🍓</div>
-        <p className="text-sm font-medium" style={{ color: "#8B7355" }}>
-          Finding your fruits…
-        </p>
+        <div className="relative">
+          <div className="text-5xl animate-bounce">🍓</div>
+          <div
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-2 rounded-full opacity-20 animate-pulse"
+            style={{ background: "#3E2723" }}
+          />
+        </div>
+        <div className="flex flex-col items-center gap-1.5">
+          <p className="text-sm font-bold" style={{ color: "#3E2723" }}>
+            In Season
+          </p>
+          <p className="text-xs font-medium" style={{ color: "#8B7355" }}>
+            Finding what&apos;s fresh near you…
+          </p>
+        </div>
+        <div className="flex gap-1.5 mt-2">
+          {["🍊", "🫐", "🍑"].map((emoji, i) => (
+            <span
+              key={emoji}
+              className="text-lg opacity-0"
+              style={{
+                animation: `fadeInUp 0.4s ease forwards ${0.3 + i * 0.15}s`,
+              }}
+            >
+              {emoji}
+            </span>
+          ))}
+        </div>
       </main>
     );
   }
@@ -91,6 +151,7 @@ export default function Home() {
         location={location}
         month={currentMonth}
         onLocationClick={openPicker}
+        onSearchClick={handleSearchOpen}
       />
 
       <TabBar
@@ -151,6 +212,14 @@ export default function Home() {
           required={false}
         />
       )}
+
+      <SearchOverlay
+        fruits={allFruits}
+        isOpen={searchOpen}
+        onClose={handleSearchClose}
+        onSelect={handleSearchSelect}
+        isFavorite={isFavorite}
+      />
     </main>
   );
 }

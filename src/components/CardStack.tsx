@@ -5,6 +5,8 @@ import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { Fruit } from "@/data/fruits";
 import FruitCard from "./FruitCard";
 
+const HINT_KEY = "inseason-swipe-hint-seen";
+
 interface CardStackProps {
   fruits: Fruit[];
   currentIndex: number;
@@ -27,6 +29,7 @@ export default function CardStack({
   const nextScale = useTransform(x, [-200, 0, 200], [1, 0.95, 1]);
   const nextOpacity = useTransform(x, [-200, 0, 200], [1, 0.8, 1]);
   const [isDragging, setIsDragging] = useState(false);
+  const [showHint, setShowHint] = useState(false);
 
   const goTo = useCallback(
     (newIndex: number) => {
@@ -76,6 +79,24 @@ export default function CardStack({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, goTo]);
 
+  // Show swipe hint for first-time users
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(HINT_KEY) && fruits.length > 1) {
+        const timer = setTimeout(() => setShowHint(true), 800);
+        return () => clearTimeout(timer);
+      }
+    } catch {}
+  }, [fruits.length]);
+
+  // Dismiss hint on first interaction
+  useEffect(() => {
+    if (showHint && (isDragging || currentIndex > 0)) {
+      setShowHint(false);
+      try { localStorage.setItem(HINT_KEY, "1"); } catch {}
+    }
+  }, [showHint, isDragging, currentIndex]);
+
   const current = fruits[currentIndex];
   const next = fruits[currentIndex + 1];
 
@@ -123,6 +144,36 @@ export default function CardStack({
           onToggleFavorite={onToggleFavorite ? handleFavoriteClick : undefined}
         />
       </motion.div>
+
+      {/* Swipe hint overlay */}
+      {showHint && fruits.length > 1 && (
+        <motion.div
+          className="absolute z-20 bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full pointer-events-none"
+          style={{ background: "rgba(62, 39, 35, 0.85)", backdropFilter: "blur(8px)" }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <motion.span
+            className="text-white/90 text-sm"
+            animate={{ x: [-6, 6, -6] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            ←
+          </motion.span>
+          <span className="text-xs font-semibold text-white/90">
+            Swipe to explore
+          </span>
+          <motion.span
+            className="text-white/90 text-sm"
+            animate={{ x: [6, -6, 6] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            →
+          </motion.span>
+        </motion.div>
+      )}
     </div>
   );
 }
