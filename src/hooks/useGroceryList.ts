@@ -16,6 +16,8 @@ import type { Category, GroceryItem, HouseholdSettings, HouseholdState, Op } fro
  *    and retries, and survives closing the app.
  *  - Every few seconds (while the app is on screen) the phone asks the server
  *    "anything new since version N?" and picks up your partner's changes.
+ *  - If the server has forgotten the list (a host without a database can do
+ *    that when it goes idle), the phone puts its own saved copy back.
  */
 
 export type SyncStatus = "loading" | "synced" | "syncing" | "offline" | "missing";
@@ -23,6 +25,7 @@ export type SyncStatus = "loading" | "synced" | "syncing" | "offline" | "missing
 const POLL_MS = 4000;
 const FLUSH_DEBOUNCE_MS = 120;
 const MAX_BACKOFF_MS = 30000;
+const RESTORE_COOLDOWN_MS = 20000;
 
 interface Persisted {
   server: HouseholdState | null;
@@ -67,6 +70,7 @@ export function useGroceryList(code: string | null, userName: string) {
   const failuresRef = useRef(0);
   const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastRestoreRef = useRef(0);
 
   const commit = useCallback(
     (next: Partial<Persisted>) => {
@@ -83,6 +87,28 @@ export function useGroceryList(code: string | null, userName: string) {
     },
     [code]
   );
+
+  // ---- Putting the list back if the server lost it ----
+  const restore = useCallback(async (): Promise<boolean> => {
+    if (!code) return false;
+    const copy = serverRef.current;
+    if (!copy) return false; // nothing saved on this phone; the list really is gone
+    if (Date.now() - lastRestoreRef.current < RESTORE_COOLDOWN_MS) return false;
+    lastRestoreRef.current = Date.now();
+    try {
+      const res = await fetch(`/api/grocery/${code}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state: copy }),
+      });
+      if (!res.ok) return false;
+      const data = (await res.json()) as { state: HouseholdState };
+      commit({ server: data.state });
+      return true;
+    } catch {
+      return false;
+    }
+  }, [code, commit]);
 
   // ---- Sending our changes ----
   const flush = useCallback(async () => {
@@ -103,6 +129,11 @@ export function useGroceryList(code: string | null, userName: string) {
         body: JSON.stringify({ ops: batch }),
       });
       if (res.status === 404) {
+        if (await restore()) {
+          // The list is back; the wrap-up below sends our changes again.
+          dirtyRef.current = true;
+          return;
+        }
         setStatus("missing");
         return;
       }
@@ -126,7 +157,7 @@ export function useGroceryList(code: string | null, userName: string) {
         if (pendingRef.current.length > 0 && failuresRef.current === 0) void flush();
       }
     }
-  }, [code, commit]);
+  }, [code, commit, restore]);
 
   const scheduleFlush = useCallback(() => {
     if (flushTimerRef.current) clearTimeout(flushTimerRef.current);
@@ -141,6 +172,11 @@ export function useGroceryList(code: string | null, userName: string) {
       const since = serverRef.current?.version ?? 0;
       const res = await fetch(`/api/grocery/${code}?since=${since}`, { cache: "no-store" });
       if (res.status === 404) {
+        if (await restore()) {
+          if (pendingRef.current.length > 0) void flush();
+          else setStatus("synced");
+          return;
+        }
         setStatus("missing");
         return;
       }
@@ -156,7 +192,7 @@ export function useGroceryList(code: string | null, userName: string) {
     } catch {
       setStatus("offline");
     }
-  }, [code, commit, flush]);
+  }, [code, commit, flush, restore]);
 
   // ---- Lifecycle: load from phone storage, then start syncing ----
   useEffect(() => {
