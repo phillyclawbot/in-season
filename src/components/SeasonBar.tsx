@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { getSeasonName, getSeasonEmoji } from "@/data/fruits";
 
 interface SeasonBarProps {
@@ -32,12 +33,22 @@ export default function SeasonBar({ location, month, onLocationClick }: SeasonBa
           ▾
         </span>
       </button>
-      <span
-        className="text-xs font-semibold px-3 py-1 rounded-full"
-        style={{ background: "#FFF0E0", color: "#D4763A" }}
-      >
-        {emoji} {season}
-      </span>
+      <div className="flex items-center gap-2">
+        <span
+          className="text-xs font-semibold px-3 py-1 rounded-full"
+          style={{ background: "#FFF0E0", color: "#D4763A" }}
+        >
+          {emoji} {season}
+        </span>
+        <Link
+          href="/grocery"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-base"
+          style={{ background: "#FFF0E0" }}
+          aria-label="Open grocery list"
+        >
+          🛒
+        </Link>
+      </div>
     </div>
   );
 }

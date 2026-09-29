@@ -29,3 +29,9 @@ body {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Text fields need to stay selectable even though the app disables selection elsewhere. */
+input, textarea, .select-text {
+  -webkit-user-select: text;
+  user-select: text;
+}
