@@ -168,7 +168,9 @@ label.btn[aria-disabled="true"] { opacity: .5; cursor: default; }
 "use strict";
 
 /* ---------- Aisles, parsing, matching (pure functions) ---------- */
-var AISLES = ["Produce","Bakery","Deli","Meat & Seafood","Dairy & Eggs","Frozen","Pantry","Snacks","Beverages","Household","Personal Care","Baby & Pets","Other"];
+var AISLES = ["Produce","Bakery","Deli","Meat & Seafood","Dairy & Eggs","Frozen","Pantry","Snacks","Beverages","Household","Personal Care","Baby & Pets","Other","Meal Ideas"];
+/* "Meal Ideas" holds dinner plans, not things to buy: no price lookups, not counted as items to buy. */
+function isIdea(i) { return i.category === "Meal Ideas"; }
 var KEYWORDS = /*__KEYWORDS__*/{};
 var ENTRIES = [];
 Object.keys(KEYWORDS).forEach(function (c) { KEYWORDS[c].forEach(function (k) { ENTRIES.push([k, c]); }); });
@@ -271,7 +273,7 @@ function buildCatalog() {
 }
 function storeKey() { return (S.settings.storeIds || []).slice().sort().join(","); }
 function dealsFor(item) {
-  if (!S.catalog.length) return [];
+  if (!S.catalog.length || isIdea(item)) return [];
   var key = norm(item.name) + "|" + storeKey();
   if (dealCache[key]) return dealCache[key];
   /* The flyer item must also belong in the same aisle as the list item, so "milk"
@@ -379,8 +381,9 @@ function toast(msg) { var t = $("toast"); t.textContent = msg; t.hidden = false;
 
 /* ---------- Rendering ---------- */
 function openItems() { return S.items.filter(function (i) { return !i.checked; }); }
+function toBuy() { return openItems().filter(function (i) { return !isIdea(i); }); }
 function renderChrome() {
-  var open = openItems(), onSale = open.filter(function (i) { return dealsFor(i).length; }).length;
+  var open = toBuy(), onSale = open.filter(function (i) { return dealsFor(i).length; }).length;
   $("sub").textContent = !S.loaded ? (S.slow ? "Still trying to reach your list…" : "Loading your list…")
     : (open.length ? open.length + " to buy" : "Nothing to buy") + (onSale ? " · " + onSale + " on sale" : "");
   var st = $("status"), label = "Connecting", live = false;
@@ -429,7 +432,7 @@ function renderList() {
   return html;
 }
 function renderDeals() {
-  var info = flyerInfo(), open = openItems();
+  var info = flyerInfo(), open = toBuy();
   if (!S.loaded) return '<div class="empty"><h2>Getting this week’s flyers</h2><p>Sale prices from the big grocery chains will show here.</p></div>';
   if (!info) return '<div class="empty"><h2>No flyers loaded yet</h2><p>Weekly flyers are loaded into this page by Claude. Ask Claude to refresh the flyers for your zip code.</p></div>';
   var picked = (S.settings.storeIds || []).length, stores = storeList();
@@ -489,7 +492,8 @@ function itemSheet(item) {
   return sheetHead(item.name) + '<div class="band sheet-body">' +
     '<div class="two"><input class="field" id="item-name" value="' + esc(item.name) + '" maxlength="120" aria-label="Item name"' + ro + '><input class="field" id="item-qty" value="' + esc(item.qty || "") + '" maxlength="40" placeholder="amount" aria-label="Amount"' + ro + '></div>' +
     '<div class="group"><span class="label">Aisle</span><div class="chips" id="aisle-chips">' + aisleChips(item.category) + '</div></div>' +
-    (S.catalog.length ? '<div class="group"><span class="label">In this week’s flyers</span>' + (deals.length ?
+    ((item.url && /^https:\/\//.test(item.url)) ? '<a class="btn quiet block" href="' + esc(item.url) + '" target="_blank" rel="noopener">Open the recipe</a>' : "") +
+    ((S.catalog.length && !isIdea(item)) ? '<div class="group"><span class="label">In this week’s flyers</span>' + (deals.length ?
       '<ul class="card">' + deals.slice(0, 25).map(function (d) { return '<li class="dealrow"><span class="txt"><span class="name" style="font-size:14px">' + esc(d.n) + '</span><br><span class="small">' + esc(d.store) + (d.s ? " · " + esc(d.s) : "") + (d.t ? " · thru " + esc(shortDate(d.t)) : "") + '</span></span><span class="right"><span class="tag">' + esc(money(d.p, d.u)) + '</span></span></li>'; }).join("") + '</ul>'
       : '<p class="hint">No listed sale price at your stores this week.</p>') + '</div>' : "") +
     (S.canWrite ? '<button class="danger" data-act="remove" data-id="' + esc(item.id) + '">Remove from the list</button>' : "") + '</div>';
@@ -622,7 +626,7 @@ function startDb() {
   var slowTimer = setTimeout(function () { if (!S.loaded) { S.slow = true; render(); } }, 10000);
   var dead = function (e) { clearTimeout(slowTimer); S.loaded = true; S.storeErr = (e && e.code === "revoked") ? "This page lost access to the shared list. Reopen it to reconnect." : "The shared list stopped answering. Reopen the page to reconnect."; render(); };
   db.collection("items").onSnapshot(function (snap) {
-    S.items = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || ""), qty: String(x.qty || ""), category: x.category || "Other", checked: !!x.checked, by: x.by || "", createdAt: x.createdAt || 0, updatedAt: x.updatedAt || 0 }; }).filter(function (i) { return i.name; });
+    S.items = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || ""), qty: String(x.qty || ""), category: x.category || "Other", checked: !!x.checked, by: x.by || "", url: typeof x.url === "string" ? x.url : "", createdAt: x.createdAt || 0, updatedAt: x.updatedAt || 0 }; }).filter(function (i) { return i.name; });
     if (!snap.metadata.fromCache || snap.docs.length) { S.loaded = true; }
     if (!snap.metadata.fromCache) { clearTimeout(slowTimer); S.slow = false; S.loaded = true; }
     render();
