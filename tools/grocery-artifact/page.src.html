@@ -127,6 +127,9 @@ main { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: tou
 .storerow .nm { flex: 1; font-weight: 600; }
 .storerow .ct { color: var(--faint); font-size: 12px; font-variant-numeric: tabular-nums; }
 textarea.field { min-height: 170px; resize: vertical; width: 100%; line-height: 1.45; }
+.vh { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+label.btn { cursor: pointer; }
+label.btn[aria-disabled="true"] { opacity: .5; cursor: default; }
 .danger { color: var(--danger); font-weight: 700; font-size: 13.5px; padding: 8px 2px; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(86px + env(safe-area-inset-bottom, 0px)); z-index: 60;
   background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 13.5px; max-width: calc(100% - 32px); text-align: center; }
@@ -247,6 +250,11 @@ var S = {
   loaded: false, slow: false, canWrite: true, wroteOnce: false, confirmClear: false, storeErr: null
 };
 var db = null, user = null, myId = null, dealCache = {}, clearTimer = null, toastTimer = null;
+var sampler = null, imgLimits = null, reading = false;
+var PHOTO_PROMPT = "The attached images are screenshots or photos of a shopping list or to-do list, for example from the Apple Reminders app or a handwritten note. " +
+  "Reply with only a JSON array of strings, one string per list item, in the order shown. Copy each item's text as written, including any amount. " +
+  "Leave out items that are visibly checked off or struck through, and leave out headings, list titles, dates, times, buttons and other interface text. " +
+  "If the same item appears in two images, include it once. If there are no list items, reply []. Example: [\"Milk\", \"2 lb chicken thighs\"]";
 var $ = function (id) { return document.getElementById(id); };
 var CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
@@ -500,15 +508,56 @@ function settingsSheet() {
 }
 function importSheet() {
   return sheetHead("Import a list") + '<div class="band sheet-body">' +
-    '<p class="hint">Paste a list with one item per line. Bullets, checkboxes and numbering are removed, amounts like “2 lb” are kept, and everything is sorted into aisles.</p>' +
+    (imgLimits ? '<div class="group"><span class="label">From a screenshot</span>' +
+      '<label class="btn block" for="import-photos" id="import-photo-btn" aria-disabled="' + (reading ? "true" : "false") + '">' + (reading ? "Reading your list…" : "Choose screenshots of your list") + '</label>' +
+      '<input class="vh" type="file" id="import-photos" accept="' + esc((imgLimits.mediaTypes || ["image/*"]).join(",")) + '" multiple' + (reading ? " disabled" : "") + '>' +
+      '<p class="hint" id="import-photo-note">Best for Reminders, which cannot copy a whole list on an iPhone. Screenshot your list, choose the screenshots here, and Claude reads the items into the box below. This uses a little of your Claude usage.</p></div>' : "") +
+    '<div class="group"><span class="label">' + (imgLimits ? "Or type or paste it" : "Type or paste your list") + '</span>' +
     '<textarea class="field" id="import-text" placeholder="Milk&#10;Eggs&#10;2 lb chicken thighs&#10;Paper towels" aria-label="List to import"></textarea>' +
-    '<button class="btn block" id="import-go" data-act="import-go" disabled>Paste a list to add it</button>' +
-    '<p class="hint">From Reminders: open the list, tap the ••• button, choose Select Reminders, select them all, then use the share or copy option and paste here.</p></div>';
+    '<p class="hint">One item per line. Bullets, checkboxes and numbering are removed, amounts like “2 lb” are kept, and everything is sorted into aisles.</p></div>' +
+    '<button class="btn block" id="import-go" data-act="import-go" disabled>Add a list above first</button></div>';
 }
 function updateImportCount() {
   var n = splitPasted($("import-text").value).filter(function (l) { return parseItem(l).name; }).length, b = $("import-go");
-  b.disabled = !n; b.textContent = n ? "Add " + n + (n === 1 ? " item" : " items") : "Paste a list to add it";
+  b.disabled = !n; b.textContent = n ? "Add " + n + (n === 1 ? " item" : " items") : "Add a list above first";
 }
+/* Screenshot import: Claude reads the list out of the pictures and fills the text box for review. */
+function photoUi(note) {
+  var b = $("import-photo-btn"), i = $("import-photos"), n = $("import-photo-note");
+  if (b) { b.textContent = reading ? "Reading your list…" : "Choose screenshots of your list"; b.setAttribute("aria-disabled", reading ? "true" : "false"); }
+  if (i) i.disabled = reading;
+  if (n && note) n.textContent = note;
+}
+function photoCopy(code) {
+  if (code === "not_granted" || code === "sampling_disabled") return "Claude was not allowed to read pictures on this page. Type or paste the list below instead.";
+  if (code === "rate_limited") return "Claude is busy or your usage limit is reached. Try again in a while, or type the list below.";
+  if (code === "image_rejected") return "That picture could not be opened. Try a normal screenshot.";
+  if (code === "session_expired") return "Sign in to Claude again, then choose the screenshots once more.";
+  if (code === "refused" || code === "empty_completion" || code === "invalid_json") return "Claude could not read a list in that picture. Try a clearer screenshot, or type the list below.";
+  return "Reading the picture failed. Check your connection and try again.";
+}
+function readPhotos(files) {
+  if (!sampler || !imgLimits || reading || !files || !files.length) return;
+  var max = imgLimits.maxCount || 1, picked = Array.prototype.slice.call(files, 0, max), extra = files.length - picked.length;
+  reading = true; photoUi("Reading " + picked.length + (picked.length === 1 ? " picture" : " pictures") + ". This can take up to a minute.");
+  sampler.json(PHOTO_PROMPT, { images: picked }).then(function (arr) {
+    var lines = (Array.isArray(arr) ? arr : []).map(function (x) { return String(x == null ? "" : x).replace(/\s+/g, " ").trim(); }).filter(Boolean).slice(0, 200);
+    reading = false;
+    if (!lines.length) return photoUi("No list items were found in that picture. Try a clearer screenshot, or type the list below.");
+    if (S.sheet !== "import") openSheet("import");
+    var ta = $("import-text"); if (!ta) return;
+    ta.value = (ta.value.trim() ? ta.value.trim() + "\n" : "") + lines.join("\n");
+    updateImportCount();
+    photoUi("Found " + lines.length + (lines.length === 1 ? " item" : " items") + ". Check them below and fix anything misread, then add them." + (extra > 0 ? " Only the first " + max + " pictures were read; choose the rest next." : ""));
+  }, function (e) {
+    reading = false;
+    var code = e && e.code;
+    if (code === "cancelled") return photoUi("");
+    if (code === "images_unavailable" || code === "not_declared" || code === "capability_disabled" || code === "capability_removed") { imgLimits = null; if (S.sheet === "import") { var keep = $("import-text") ? $("import-text").value : ""; openSheet("import"); $("import-text").value = keep; updateImportCount(); } return; }
+    photoUi(photoCopy(code));
+  });
+}
+
 /* Text fields in a sheet save when the sheet closes or the field loses focus. */
 function commitSheetFields() {
   if (!S.canWrite) return;
@@ -546,6 +595,10 @@ document.addEventListener("click", function (ev) {
     toast(res.count ? "Adding " + res.count + (res.count === 1 ? " item" : " items") + " to the list" : "Those items are already on the list"); render();
   }
 });
+document.addEventListener("change", function (ev) {
+  if (ev.target && ev.target.id === "import-photos") { var fs = Array.prototype.slice.call(ev.target.files || []); readPhotos(fs); try { ev.target.value = ""; } catch (e) {} }
+});
+document.addEventListener("click", function (ev) { var l = ev.target.closest && ev.target.closest("#import-photo-btn"); if (l && reading) ev.preventDefault(); });
 document.addEventListener("focusout", function (ev) { if (ev.target && (ev.target.id === "item-name" || ev.target.id === "item-qty" || ev.target.id === "zip-input")) commitSheetFields(); });
 document.addEventListener("keydown", function (ev) {
   if (ev.key === "Escape" && S.sheet) closeSheet();
@@ -588,11 +641,16 @@ render();
 (function boot() {
   var c = window.claude;
   if (!c || typeof c.use !== "function") return startLocal();
+  c.use("sample").then(function (s) {
+    if (!s) return;
+    sampler = s;
+    return s.limits().then(function (l) { imgLimits = (l && l.images) ? l.images : null; });
+  }).catch(function () {});
   Promise.all([c.use("db"), c.use("user")]).then(function (r) {
     db = r[0]; user = r[1];
     if (!db) return startLocal();
-    var facts = user ? Promise.all([user.id(), user.can("data.write")]) : Promise.resolve([null, null]);
-    facts.then(function (f) { myId = f[0]; if (f[1] === false) S.canWrite = false; }).catch(function () {}).then(startDb);
+    var facts = user ? Promise.all([user.id(), user.can("data.write"), user.isOwner()]) : Promise.resolve([null, null, false]);
+    facts.then(function (f) { myId = f[0]; if (f[1] === false && !f[2]) S.canWrite = false; }).catch(function () {}).then(startDb);
   }).catch(startLocal);
 })();
 
