@@ -1,0 +1,602 @@
+<title>Shared Grocery List</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-screen phone app. Fixed header and tabs, a scrolling list grouped by aisle,
+   and the add bar pinned to the bottom. Sale prices wear a yellow flyer price tag. */
+:root {
+  --bg: #F2F6F0; --surface: #FFFFFF; --ink: #15231A; --muted: #56675B; --faint: #8A9B8F;
+  --line: #DBE4DA; --chip: #E6EEE4; --brand: #1E6A39; --brand-ink: #FFFFFF;
+  --tag: #FFD84A; --tag-ink: #33260A; --danger: #B3261E; --ok: #1E8E4A; --shade: rgba(21,35,26,.45);
+  --display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --gl: max(16px, env(safe-area-inset-left, 0px)); --gr: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1511; --surface: #17211B; --ink: #E7F0E8; --muted: #A2B3A6; --faint: #74867A;
+  --line: #27342C; --chip: #1F2B24; --brand: #5CC784; --brand-ink: #06230F;
+  --tag: #F2C933; --tag-ink: #2A1E00; --danger: #FF8A80; --ok: #5CC784; --shade: rgba(0,0,0,.6); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1511; --surface: #17211B; --ink: #E7F0E8; --muted: #A2B3A6; --faint: #74867A;
+  --line: #27342C; --chip: #1F2B24; --brand: #5CC784; --brand-ink: #06230F;
+  --tag: #F2C933; --tag-ink: #2A1E00; --danger: #FF8A80; --ok: #5CC784; --shade: rgba(0,0,0,.6); color-scheme: dark }
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.4;
+  display: flex; flex-direction: column; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: inherit; }
+input, textarea { font: inherit; color: var(--ink); }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.band { padding-left: var(--gl); padding-right: var(--gr); width: 100%; max-width: 640px; margin: 0 auto; }
+
+/* Header */
+.head { padding-block: 14px 6px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.head h1 { font-family: var(--display); font-weight: 800; font-size: 28px; line-height: 1.05; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 13px; font-weight: 500; margin-top: 3px; }
+.head-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.status i { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); display: block; }
+.status.live i { background: var(--ok); }
+.iconbtn { width: 38px; height: 38px; border-radius: 12px; background: var(--chip); display: grid; place-items: center; }
+.iconbtn svg { width: 18px; height: 18px; stroke: var(--ink); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.note { margin-block: 4px 6px; padding: 9px 12px; border-radius: 12px; background: var(--chip); color: var(--muted); font-size: 12.5px; font-weight: 500; }
+
+/* Tabs */
+.tabs { display: flex; gap: 6px; padding-block: 6px 8px; }
+.tab { flex: 1; text-align: center; padding: 9px 10px; border-radius: 12px; font-weight: 700; font-size: 13px; color: var(--muted); }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+
+/* Scrolling body */
+main { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.body { padding-block: 4px 20px; display: flex; flex-direction: column; gap: 16px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 2px 6px; }
+.sec-head h2 { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.sec-head h2 span { color: var(--faint); font-weight: 600; letter-spacing: 0; }
+.sec-head h2.store { font-family: var(--display); font-size: 17px; font-weight: 800; letter-spacing: 0; text-transform: none; color: var(--ink); }
+.pill { font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 999px; background: var(--chip); color: var(--ink); }
+.pill.warn { background: var(--danger); color: var(--surface); }
+.card { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.card > li + li { border-top: 1px solid var(--line); }
+.row { display: flex; align-items: stretch; }
+.check { padding: 0 10px 0 14px; display: grid; place-items: center; }
+.check i { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--faint); display: grid; place-items: center; }
+.check[aria-pressed="true"] i { background: var(--brand); border-color: var(--brand); }
+.check svg { width: 13px; height: 13px; stroke: var(--brand-ink); fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+.check[aria-pressed="true"] svg { opacity: 1; }
+.rowmain { flex: 1; min-width: 0; padding: 12px 12px 12px 2px; display: flex; flex-direction: column; gap: 5px; }
+.line1 { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.name { font-weight: 600; font-size: 15.5px; overflow-wrap: anywhere; }
+.qty { color: var(--muted); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.done .name { text-decoration: line-through; color: var(--faint); font-weight: 500; }
+.deal { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tag { background: var(--tag); color: var(--tag-ink); font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums;
+  padding: 2px 8px 2px 14px; clip-path: polygon(9px 0, 100% 0, 100% 100%, 9px 100%, 0 50%); white-space: nowrap; }
+.where { color: var(--muted); font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.by { align-self: center; margin-right: 12px; width: 24px; height: 24px; border-radius: 50%; background: var(--chip); color: var(--muted);
+  font-size: 11px; font-weight: 700; display: grid; place-items: center; flex-shrink: 0; }
+.by:empty { display: none; }
+.dealrow { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; }
+.dealrow .txt { flex: 1; min-width: 0; }
+.dealrow .small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.dealrow .right { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.thru { color: var(--faint); font-size: 11px; font-weight: 500; }
+
+/* Empty states */
+.empty { padding: 36px 8px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.empty h2 { font-family: var(--display); font-size: 21px; font-weight: 800; margin: 0; text-wrap: balance; }
+.empty p { margin: 0; color: var(--muted); max-width: 34ch; }
+.quick { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 8px; }
+.quick button { padding: 8px 13px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-weight: 600; font-size: 13.5px; }
+.btn { display: inline-block; text-align: center; padding: 12px 18px; border-radius: 14px; background: var(--brand); color: var(--brand-ink); font-weight: 700; }
+.btn.quiet { background: var(--chip); color: var(--ink); }
+.btn.block { display: block; width: 100%; }
+.btn:disabled { opacity: .45; cursor: default; }
+
+/* Add bar */
+.addbar { border-top: 1px solid var(--line); background: var(--bg); }
+.addbar form { display: flex; gap: 8px; padding-block: 10px calc(10px + env(safe-area-inset-bottom, 0px)); }
+.field { flex: 1; min-width: 0; padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); font-size: 16px; }
+.field::placeholder { color: var(--faint); }
+.addbtn { width: 48px; height: 48px; border-radius: 14px; background: var(--brand); color: var(--brand-ink); font-size: 24px; font-weight: 600; display: grid; place-items: center; flex-shrink: 0; }
+.addbtn:disabled { opacity: .45; }
+
+/* Sheets */
+.scrim { position: fixed; inset: 0; background: var(--shade); z-index: 40; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; background: var(--bg); border-radius: 22px 22px 0 0; max-height: 88%;
+  display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom, 0px); animation: up .22s ease-out; }
+@keyframes up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 16px 8px; }
+.sheet-head h2 { font-family: var(--display); font-size: 20px; font-weight: 800; margin: 0; overflow-wrap: anywhere; }
+.sheet-body { overflow-y: auto; padding-block: 4px 18px; display: flex; flex-direction: column; gap: 18px; }
+.group { display: flex; flex-direction: column; gap: 7px; }
+.label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.hint { color: var(--muted); font-size: 12.5px; margin: 0; }
+.two { display: flex; gap: 8px; }
+.two .field:last-child { flex: 0 0 96px; text-align: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { padding: 7px 12px; border-radius: 999px; background: var(--surface); border: 1.5px solid var(--line); font-weight: 600; font-size: 13px; color: var(--muted); }
+.chips button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.storerow { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.storerow .box { width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--faint); display: grid; place-items: center; flex-shrink: 0; }
+.storerow[aria-pressed="true"] .box { background: var(--brand); border-color: var(--brand); }
+.storerow .box svg { width: 12px; height: 12px; stroke: var(--brand-ink); fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+.storerow[aria-pressed="true"] .box svg { opacity: 1; }
+.storerow .nm { flex: 1; font-weight: 600; }
+.storerow .ct { color: var(--faint); font-size: 12px; font-variant-numeric: tabular-nums; }
+textarea.field { min-height: 170px; resize: vertical; width: 100%; line-height: 1.45; }
+.danger { color: var(--danger); font-weight: 700; font-size: 13.5px; padding: 8px 2px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(86px + env(safe-area-inset-bottom, 0px)); z-index: 60;
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 13.5px; max-width: calc(100% - 32px); text-align: center; }
+</style>
+
+<header class="band head">
+  <div>
+    <h1>Grocery list</h1>
+    <div class="sub" id="sub">Loading your list…</div>
+  </div>
+  <div class="head-right">
+    <span class="status" id="status"><i></i><span>Connecting</span></span>
+    <button class="iconbtn" data-act="settings" aria-label="Stores and settings">
+      <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+    </button>
+  </div>
+</header>
+<div class="band" id="notes"></div>
+<nav class="band tabs" role="tablist">
+  <button class="tab" role="tab" data-act="view" data-view="list" aria-selected="true" id="tab-list">List</button>
+  <button class="tab" role="tab" data-act="view" data-view="deals" aria-selected="false" id="tab-deals">Deals</button>
+</nav>
+<main id="main"><div class="band body" id="body"></div></main>
+<div class="addbar" id="addbar">
+  <form class="band" id="addform" autocomplete="off">
+    <input class="field" id="add-input" placeholder="Add: 2 lb chicken thighs, milk" enterkeyhint="done" autocapitalize="none" aria-label="Add items">
+    <button class="addbtn" id="add-btn" aria-label="Add to list">+</button>
+  </form>
+</div>
+<div class="scrim" id="scrim" data-act="close" hidden></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" hidden></section>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+"use strict";
+
+/* ---------- Aisles, parsing, matching (pure functions) ---------- */
+var AISLES = ["Produce","Bakery","Deli","Meat & Seafood","Dairy & Eggs","Frozen","Pantry","Snacks","Beverages","Household","Personal Care","Baby & Pets","Other"];
+var KEYWORDS = /*__KEYWORDS__*/{};
+var ENTRIES = [];
+Object.keys(KEYWORDS).forEach(function (c) { KEYWORDS[c].forEach(function (k) { ENTRIES.push([k, c]); }); });
+ENTRIES.sort(function (a, b) { return b[0].length - a[0].length; });
+
+function norm(s) { return String(s).toLowerCase().replace(/[^\p{L}\p{N}&%\s-]/gu, " ").replace(/\s+/g, " ").trim(); }
+function aisleFor(name) {
+  var text = " " + norm(name) + " ";
+  if (!text.trim()) return "Other";
+  for (var i = 0; i < ENTRIES.length; i++) if (text.indexOf(" " + ENTRIES[i][0] + " ") !== -1) return ENTRIES[i][1];
+  var words = text.trim().split(" ");
+  for (var w = 0; w < words.length; w++) {
+    var word = words[w], vs = [word];
+    if (/ies$/.test(word)) vs.push(word.slice(0, -3) + "y");
+    if (/es$/.test(word)) vs.push(word.slice(0, -2));
+    if (/s$/.test(word)) vs.push(word.slice(0, -1));
+    for (var v = 0; v < vs.length; v++) for (var e = 0; e < ENTRIES.length; e++) if (ENTRIES[e][0] === vs[v]) return ENTRIES[e][1];
+  }
+  return "Other";
+}
+
+var UNITS = "lb|lbs|pound|pounds|oz|ounce|ounces|kg|g|gram|grams|l|liter|liters|litre|litres|ml|gal|gallon|gallons|qt|quart|quarts|pt|pint|pints|cup|cups|pack|packs|pk|bag|bags|box|boxes|can|cans|jar|jars|bottle|bottles|bunch|bunches|head|heads|dozen|doz|case|cases|loaf|loaves|carton|cartons|container|containers|roll|rolls|stick|sticks|bar|bars|each|ea|ct|count|pcs|pieces|piece|x";
+var NUM = "(?:\\d+(?:[.,]\\d+)?|\\d+\\s*/\\s*\\d+|\\d+\\s+\\d+/\\d+|½|¼|¾)";
+var LEADING = new RegExp("^(" + NUM + ")\\s*(" + UNITS + ")?\\.?\\s+(?:of\\s+)?(.+)$", "i");
+var TRAILING = new RegExp("^(.+?)\\s*(?:x\\s*|\\(|-\\s*)(" + NUM + ")\\s*(" + UNITS + ")?\\)?\\s*$", "i");
+var WORDQ = new RegExp("^(?:a|an|one)?\\s*(" + UNITS + ")\\s+(?:of\\s+)?(.+)$", "i");
+function tidy(s) { return s.replace(/^[\s,.\-–—]+|[\s,.\-–—]+$/g, "").trim(); }
+function joinQty(n, u) { n = n.replace(/\s+/g, " ").trim(); return (!u || u.toLowerCase() === "x") ? n : n + " " + u.toLowerCase(); }
+function parseItem(raw) {
+  var t = String(raw).trim().replace(/\s+/g, " "), m;
+  if (!t) return { name: "", qty: "" };
+  if ((m = t.match(LEADING))) return { qty: joinQty(m[1], m[2]), name: tidy(m[3]) };
+  if ((m = t.match(TRAILING))) return { qty: joinQty(m[2], m[3]), name: tidy(m[1]) };
+  if ((m = t.match(WORDQ))) { var u = m[1].toLowerCase(); return { qty: (u === "dozen" || u === "doz") ? "12" : "1 " + u, name: tidy(m[2]) }; }
+  return { qty: "", name: tidy(t) };
+}
+function splitTyped(raw) { return String(raw).split(/\s*(?:[;\n]|,(?!\d))\s*/).map(function (s) { return s.trim(); }).filter(Boolean); }
+/* Pasted lists (Reminders, Notes, texts): one item per line, bullets and checkboxes stripped. */
+function splitPasted(raw) {
+  var lines = String(raw).split(/\r?\n/).map(function (l) {
+    return l.replace(/^[\s•◦▪○●□▢◯☐☑☒✓✔·*\-–—]+/, "")
+            .replace(/^\[[ xX]?\]\s*/, "").replace(/^\d{1,2}[.)]\s+/, "").trim();
+  }).filter(Boolean);
+  if (lines.length === 1) return splitTyped(lines[0]);
+  return lines;
+}
+
+var STOP = { of:1, the:1, a:1, an:1, and:1, or:1, fresh:1, organic:1, large:1, small:1, medium:1 };
+var TYPEWORDS = {};
+"pudding chips chip bread muffin muffins cake cakes pie pies juice soup soups sauce flavored flavor cereal bar bars yogurt smoothie candy cookie cookies cracker crackers dip dressing seasoning mix powder extract syrup jam jelly spread noodle noodles pasta salad soda drink drinks tea coffee gum snack snacks filling frosting nuggets patties sausage broth stock bouillon wrap wraps sandwich sandwiches pizza burrito burritos ice cream popsicle popsicles sorbet gelato lotion shampoo scent scented candle candles food treats litter toy toys fries dried canned roasted fried breaded stuffed seeds oil vinegar wine beer liqueur vodka rum".split(" ").forEach(function (w) { TYPEWORDS[w] = 1; });
+function stem(w) { if (/ies$/.test(w)) return w.slice(0, -3) + "y"; if (/es$/.test(w) && w.length > 4) return w.slice(0, -2); if (/s$/.test(w) && w.length > 3) return w.slice(0, -1); return w; }
+function wordsOf(s) { return String(s).toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean); }
+function queryTokens(name) { return wordsOf(name).filter(function (w) { return w.length > 1 && !STOP[w]; }); }
+/* A flyer item matches when it mentions every word of the list item and isn't a different product made from it. */
+function matches(entry, tokens) {
+  if (!tokens.length) return false;
+  var asked = {};
+  for (var i = 0; i < tokens.length; i++) {
+    var t = tokens[i], s = stem(t); asked[s] = 1;
+    var ok = entry.lc.indexOf(t) !== -1;
+    if (!ok) for (var j = 0; j < entry.st.length; j++) if (entry.st[j] === s || entry.st[j].indexOf(s) === 0) { ok = true; break; }
+    if (!ok) return false;
+  }
+  for (var k = 0; k < entry.w.length; k++) if (TYPEWORDS[entry.w[k]] && !asked[stem(entry.w[k])]) return false;
+  return true;
+}
+function money(p, u) { return "$" + Number(p).toFixed(2) + (u ? " " + u : ""); }
+function shortDate(iso) { if (!iso) return ""; var d = new Date(iso.length === 10 ? iso + "T12:00:00" : iso); return isNaN(d) ? "" : d.toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
+function today() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function rid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
+
+/* ---------- State ---------- */
+var S = {
+  mode: "loading",          // loading | db | local
+  items: [], settings: { storeIds: [], zip: "" },
+  flyerDocs: [], catalog: [], catVer: 0,
+  view: "list", sheet: null, sheetItemId: null,
+  loaded: false, slow: false, canWrite: true, wroteOnce: false, confirmClear: false, storeErr: null
+};
+var db = null, user = null, myId = null, dealCache = {}, clearTimer = null, toastTimer = null;
+var $ = function (id) { return document.getElementById(id); };
+var CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+/* ---------- Deals ---------- */
+function buildCatalog() {
+  var out = [];
+  S.flyerDocs.forEach(function (d) {
+    (d.items || []).forEach(function (it) {
+      var w = wordsOf(it.n);
+      out.push({ n: it.n, p: it.p, u: String(it.u || "").toLowerCase().replace(/\.+$/, ""), s: it.s || "", t: it.t || "", sid: d.storeId, store: d.store, lc: String(it.n).toLowerCase(), w: w, st: w.map(stem), a: aisleFor(it.n) });
+    });
+  });
+  S.catalog = out; S.catVer++; dealCache = {};
+}
+function storeKey() { return (S.settings.storeIds || []).slice().sort().join(","); }
+function dealsFor(item) {
+  if (!S.catalog.length) return [];
+  var key = norm(item.name) + "|" + storeKey();
+  if (dealCache[key]) return dealCache[key];
+  /* The flyer item must also belong in the same aisle as the list item, so "milk"
+     does not pull in evaporated milk and "bread" does not pull in bread crumbs. */
+  var tokens = queryTokens(item.name), now = today(), picked = S.settings.storeIds || [], res = [], aisle = aisleFor(item.name);
+  for (var i = 0; i < S.catalog.length; i++) {
+    var e = S.catalog[i];
+    if (picked.length && picked.indexOf(e.sid) === -1) continue;
+    if (e.t && e.t < now) continue;
+    if (aisle !== "Other" && e.a !== "Other" && e.a !== aisle) continue;
+    if (matches(e, tokens)) res.push(e);
+  }
+  res.sort(function (a, b) { return a.p - b.p; });
+  return (dealCache[key] = res);
+}
+function storeList() {
+  var map = {};
+  S.flyerDocs.forEach(function (d) { var m = map[d.storeId] || (map[d.storeId] = { id: d.storeId, name: d.store, count: 0 }); m.count += (d.items || []).length; });
+  return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) { return a.name.localeCompare(b.name); });
+}
+function flyerInfo() {
+  if (!S.flyerDocs.length) return null;
+  var newest = "", zip = "", lastEnd = "";
+  S.flyerDocs.forEach(function (d) { if ((d.fetchedAt || "") > newest) newest = d.fetchedAt; zip = d.zip || zip; (d.items || []).forEach(function (i) { if ((i.t || "") > lastEnd) lastEnd = i.t; }); });
+  var days = newest ? Math.floor((Date.now() - Date.parse(newest)) / 86400000) : 0;
+  return { fetchedAt: newest, zip: zip, total: S.catalog.length, days: days, stale: days >= 8 };
+}
+
+/* ---------- Saving ---------- */
+var chains = {};
+function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+function failed(e) {
+  var code = e && e.code;
+  if (code === "invalid_argument" && !S.wroteOnce) { S.canWrite = false; renderChrome(); toast("You can see this list but not change it yet."); }
+  else if (code === "quota_exceeded") toast("The list is full. Clear the items already in the cart.");
+  else if (code === "revoked" || code === "not_granted") { S.canWrite = false; renderChrome(); toast("This page lost access to the shared list. Reopen it."); }
+  else toast("That change did not save. Check your connection and try again.");
+}
+/* One write at a time per document, with one retry on a brief outage. */
+function save(path, fn) {
+  var prev = chains[path] || Promise.resolve();
+  var next = prev.then(function () {
+    return fn().catch(function (e) {
+      if (e && e.code === "unavailable") return sleep(500 + Math.random() * 900).then(fn);
+      throw e;
+    });
+  }).then(function () { S.wroteOnce = true; }, failed);
+  chains[path] = next;
+  next.then(function () { if (chains[path] === next) delete chains[path]; });
+  return next;
+}
+function persistLocal() { try { localStorage.setItem("grocery-local", JSON.stringify({ items: S.items, settings: S.settings })); } catch (e) {} }
+var store = {
+  add: function (item) {
+    if (S.mode === "db") { var ref = db.collection("items").doc(); return save("items/" + ref.id, function () { return ref.set(item); }); }
+    S.items.push(Object.assign({ id: rid() }, item)); persistLocal(); render(); return Promise.resolve();
+  },
+  patch: function (id, patch) {
+    patch.updatedAt = Date.now();
+    if (S.mode === "db") return save("items/" + id, function () { return db.doc("items/" + id).update(patch); });
+    var it = S.items.find(function (i) { return i.id === id; }); if (it) Object.assign(it, patch); persistLocal(); render(); return Promise.resolve();
+  },
+  remove: function (id) {
+    if (S.mode === "db") return save("items/" + id, function () { return db.doc("items/" + id).delete(); });
+    S.items = S.items.filter(function (i) { return i.id !== id; }); persistLocal(); render(); return Promise.resolve();
+  },
+  settings: function (patch) {
+    var next = Object.assign({}, S.settings, patch);
+    S.settings = next; dealCache = {};
+    if (S.mode === "db") return save("meta/settings", function () { return db.doc("meta/settings").set({ storeIds: next.storeIds || [], zip: next.zip || "" }); });
+    persistLocal(); render(); return Promise.resolve();
+  }
+};
+
+/* ---------- Actions ---------- */
+function addMany(texts) {
+  var now = Date.now(), added = 0, jobs = Promise.resolve();
+  var seen = {};
+  S.items.forEach(function (i) { seen[i.name.toLowerCase()] = i; });
+  texts.forEach(function (line, idx) {
+    var p = parseItem(line);
+    if (!p.name) return;
+    p.name = p.name.slice(0, 120); p.qty = p.qty.slice(0, 40);
+    var key = p.name.toLowerCase(), dup = seen[key];
+    if (dup) {
+      if (dup.id && (dup.checked || (p.qty && p.qty !== dup.qty))) { var patch = { checked: false }; if (p.qty) patch.qty = p.qty; jobs = jobs.then(function () { return store.patch(dup.id, patch); }); added++; }
+      return;
+    }
+    var item = { name: p.name, qty: p.qty, category: aisleFor(p.name), checked: false, by: myId || "", createdAt: now + idx, updatedAt: now + idx };
+    seen[key] = item; added++;
+    jobs = jobs.then(function () { return store.add(item); });
+  });
+  return { count: added, done: jobs };
+}
+function toggle(id) { var it = byId(id); if (it) store.patch(id, { checked: !it.checked }); }
+function byId(id) { return S.items.find(function (i) { return i.id === id; }); }
+function clearChecked() {
+  if (!S.confirmClear) { S.confirmClear = true; render(); clearTimeout(clearTimer); clearTimer = setTimeout(function () { S.confirmClear = false; render(); }, 4000); return; }
+  S.confirmClear = false; clearTimeout(clearTimer);
+  var ids = S.items.filter(function (i) { return i.checked; }).map(function (i) { return i.id; });
+  ids.reduce(function (p, id) { return p.then(function () { return store.remove(id); }); }, Promise.resolve());
+  render();
+}
+function toast(msg) { var t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 3600); }
+
+/* ---------- Rendering ---------- */
+function openItems() { return S.items.filter(function (i) { return !i.checked; }); }
+function renderChrome() {
+  var open = openItems(), onSale = open.filter(function (i) { return dealsFor(i).length; }).length;
+  $("sub").textContent = !S.loaded ? (S.slow ? "Still trying to reach your list…" : "Loading your list…")
+    : (open.length ? open.length + " to buy" : "Nothing to buy") + (onSale ? " · " + onSale + " on sale" : "");
+  var st = $("status"), label = "Connecting", live = false;
+  if (S.mode === "db" && S.loaded) { label = S.canWrite ? "Shared, live" : "View only"; live = true; }
+  else if (S.mode === "local") label = "This device only";
+  st.className = "status" + (live ? " live" : ""); st.lastElementChild.textContent = label;
+  $("tab-deals").textContent = "Deals" + (onSale ? " (" + onSale + ")" : "");
+  $("tab-list").setAttribute("aria-selected", String(S.view === "list")); $("tab-deals").setAttribute("aria-selected", String(S.view === "deals"));
+  $("addbar").hidden = S.view !== "list" || !S.canWrite;
+  var notes = "";
+  if (S.mode === "local") notes += '<div class="note">This copy is saved on this device only. Open the page in Claude while signed in to share it between phones.</div>';
+  if (S.mode === "db" && !S.canWrite) notes += '<div class="note">You can see this list but not change it. Ask the owner to invite you as an Editor from the Share menu.</div>';
+  if (S.storeErr) notes += '<div class="note">' + esc(S.storeErr) + '</div>';
+  $("notes").innerHTML = notes;
+}
+function rowHtml(item, withDeal) {
+  var deals = withDeal ? dealsFor(item) : [], d = deals[0];
+  return '<li class="row' + (item.checked ? " done" : "") + '">' +
+    '<button class="check" data-act="toggle" data-id="' + esc(item.id) + '" aria-pressed="' + (item.checked ? "true" : "false") + '" aria-label="' + (item.checked ? "Put back on the list: " : "Got it: ") + esc(item.name) + '"><i>' + CHECK + '</i></button>' +
+    '<button class="rowmain" data-act="open" data-id="' + esc(item.id) + '">' +
+      '<span class="line1"><span class="name">' + esc(item.name) + '</span>' + (item.qty ? '<span class="qty">' + esc(item.qty) + '</span>' : "") + '</span>' +
+      (d ? '<span class="deal"><span class="tag">' + esc(money(d.p, d.u)) + '</span><span class="where">' + esc(d.store) + (deals.length > 1 ? " +" + (deals.length - 1) + " more" : "") + '</span></span>' : "") +
+    '</button><span class="by" data-by="' + esc(item.by || "") + '"></span></li>';
+}
+function renderList() {
+  if (!S.loaded) return '<div class="empty"><h2>' + (S.slow ? "Can’t reach the list yet" : "Getting your list") + '</h2><p>' + (S.slow ? "The shared list is not answering. It will appear here as soon as it does." : "Items you and your partner add will show up here, sorted by aisle.") + '</p></div>';
+  if (!S.items.length) {
+    return '<div class="empty"><h2>Nothing on the list yet</h2><p>Type below, or tap a staple to start. Separate several items with commas.</p>' +
+      (S.canWrite ? '<div class="quick">' + ["Milk","Eggs","Bread","Bananas","Chicken breast","Butter","Coffee","Paper towels"].map(function (q) { return '<button data-act="quick" data-q="' + q + '">' + q + '</button>'; }).join("") + '</div>' +
+      '<button class="btn quiet" data-act="import" style="margin-top:10px">Import a list you already have</button>' : "") + '</div>';
+  }
+  var html = "", groups = {};
+  openItems().forEach(function (i) { (groups[i.category] || (groups[i.category] = [])).push(i); });
+  AISLES.concat(Object.keys(groups).filter(function (c) { return AISLES.indexOf(c) === -1; })).forEach(function (a) {
+    var g = groups[a]; if (!g) return;
+    g.sort(function (x, y) { return (x.createdAt || 0) - (y.createdAt || 0); });
+    html += '<section><div class="sec-head"><h2>' + esc(a) + ' <span>· ' + g.length + '</span></h2></div><ul class="card">' + g.map(function (i) { return rowHtml(i, true); }).join("") + '</ul></section>';
+  });
+  var done = S.items.filter(function (i) { return i.checked; }).sort(function (x, y) { return (y.updatedAt || 0) - (x.updatedAt || 0); });
+  if (done.length) {
+    html += '<section><div class="sec-head"><h2>In the cart <span>· ' + done.length + '</span></h2>' +
+      (S.canWrite ? '<button class="pill' + (S.confirmClear ? " warn" : "") + '" data-act="clear">' + (S.confirmClear ? "Remove " + done.length + "? Tap again" : "Clear") + '</button>' : "") +
+      '</div><ul class="card">' + done.map(function (i) { return rowHtml(i, false); }).join("") + '</ul></section>';
+  }
+  if (!openItems().length) html = '<div class="empty" style="padding-top:20px"><h2>Everything is in the cart</h2><p>Clear the cart when you are home, or add more below.</p></div>' + html;
+  return html;
+}
+function renderDeals() {
+  var info = flyerInfo(), open = openItems();
+  if (!S.loaded) return '<div class="empty"><h2>Getting this week’s flyers</h2><p>Sale prices from the big grocery chains will show here.</p></div>';
+  if (!info) return '<div class="empty"><h2>No flyers loaded yet</h2><p>Weekly flyers are loaded into this page by Claude. Ask Claude to refresh the flyers for your zip code.</p></div>';
+  var picked = (S.settings.storeIds || []).length, stores = storeList();
+  var head = '<div class="sec-head" style="margin-bottom:0"><h2 style="text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:500">Flyers near ' + esc(info.zip) + ', loaded ' + esc(shortDate(info.fetchedAt)) + '. ' +
+    (picked ? "Showing your " + picked + (picked === 1 ? " store." : " stores.") : "Showing all " + stores.length + " chains.") + '</h2><button class="pill" data-act="settings">Stores</button></div>';
+  if (info.stale) head += '<div class="note">These flyers are ' + info.days + ' days old, so some sales have ended. Ask Claude to refresh the flyers.</div>';
+  if (!open.length) return head + '<div class="empty"><h2>Nothing to price yet</h2><p>Add items to your list and matching sale prices appear here.</p></div>';
+  var groups = {}, onSale = 0;
+  open.forEach(function (item) {
+    var ds = dealsFor(item); if (!ds.length) return; onSale++;
+    var seen = {};
+    ds.forEach(function (d) { if (seen[d.sid]) return; seen[d.sid] = 1; (groups[d.sid] || (groups[d.sid] = { name: d.store, rows: [] })).rows.push({ item: item, d: d }); });
+  });
+  var keys = Object.keys(groups).sort(function (a, b) { return groups[b].rows.length - groups[a].rows.length || groups[a].name.localeCompare(groups[b].name); });
+  if (!keys.length) return head + '<div class="empty"><h2>No matches this week</h2><p>None of your ' + open.length + ' items has a listed sale price in these flyers.</p></div>';
+  var html = head + '<div class="sec-head" style="margin-bottom:-6px"><h2 class="store">' + onSale + ' of ' + open.length + ' items on sale</h2></div>';
+  keys.forEach(function (k) {
+    var g = groups[k];
+    html += '<section><div class="sec-head"><h2 class="store">' + esc(g.name) + '</h2><span class="thru">' + g.rows.length + (g.rows.length === 1 ? " item" : " items") + '</span></div><ul class="card">' +
+      g.rows.map(function (r) {
+        return '<li><button class="dealrow" data-act="open" data-id="' + esc(r.item.id) + '"><span class="txt"><span class="name">' + esc(r.item.name) + '</span><br><span class="small">' + esc(r.d.n) + (r.d.s ? " · " + esc(r.d.s) : "") + '</span></span>' +
+          '<span class="right"><span class="tag">' + esc(money(r.d.p, r.d.u)) + '</span>' + (r.d.t ? '<span class="thru">thru ' + esc(shortDate(r.d.t)) + '</span>' : "") + '</span></button></li>';
+      }).join("") + '</ul></section>';
+  });
+  return html;
+}
+function render() {
+  renderChrome();
+  $("body").innerHTML = S.view === "list" ? renderList() : renderDeals();
+  fillNames();
+  if (S.sheet === "item" && !byId(S.sheetItemId)) closeSheet();
+}
+/* "Added by" initials, resolved fresh each render; names are never stored. */
+function fillNames() {
+  if (!user) return;
+  var els = Array.prototype.slice.call(document.querySelectorAll("[data-by]")).filter(function (e) { return e.getAttribute("data-by"); });
+  if (!els.length) return;
+  var ids = els.map(function (e) { return e.getAttribute("data-by"); }).filter(function (v, i, a) { return a.indexOf(v) === i; });
+  user.profiles(ids).then(function (ps) {
+    els.forEach(function (e) { var p = ps[e.getAttribute("data-by")]; if (p && p.name) { e.textContent = p.name.trim().charAt(0).toUpperCase(); e.title = "Added by " + p.name; } });
+  });
+}
+
+/* ---------- Sheets ---------- */
+function openSheet(kind, id) {
+  S.sheet = kind; S.sheetItemId = id || null;
+  var html = kind === "item" ? itemSheet(byId(id)) : kind === "settings" ? settingsSheet() : importSheet();
+  if (!html) return closeSheet();
+  $("sheet").innerHTML = html; $("sheet").hidden = false; $("scrim").hidden = false;
+  if (kind === "import") { var ta = $("import-text"); ta.addEventListener("input", updateImportCount); setTimeout(function () { ta.focus(); }, 50); }
+}
+function closeSheet() { commitSheetFields(); S.sheet = null; S.sheetItemId = null; $("sheet").hidden = true; $("scrim").hidden = true; $("sheet").innerHTML = ""; }
+function sheetHead(title) { return '<div class="band sheet-head"><h2>' + esc(title) + '</h2><button class="pill" data-act="close">Done</button></div>'; }
+function itemSheet(item) {
+  if (!item) return "";
+  var deals = dealsFor(item), ro = S.canWrite ? "" : " disabled";
+  return sheetHead(item.name) + '<div class="band sheet-body">' +
+    '<div class="two"><input class="field" id="item-name" value="' + esc(item.name) + '" maxlength="120" aria-label="Item name"' + ro + '><input class="field" id="item-qty" value="' + esc(item.qty || "") + '" maxlength="40" placeholder="amount" aria-label="Amount"' + ro + '></div>' +
+    '<div class="group"><span class="label">Aisle</span><div class="chips" id="aisle-chips">' + aisleChips(item.category) + '</div></div>' +
+    (S.catalog.length ? '<div class="group"><span class="label">In this week’s flyers</span>' + (deals.length ?
+      '<ul class="card">' + deals.slice(0, 25).map(function (d) { return '<li class="dealrow"><span class="txt"><span class="name" style="font-size:14px">' + esc(d.n) + '</span><br><span class="small">' + esc(d.store) + (d.s ? " · " + esc(d.s) : "") + (d.t ? " · thru " + esc(shortDate(d.t)) : "") + '</span></span><span class="right"><span class="tag">' + esc(money(d.p, d.u)) + '</span></span></li>'; }).join("") + '</ul>'
+      : '<p class="hint">No listed sale price at your stores this week.</p>') + '</div>' : "") +
+    (S.canWrite ? '<button class="danger" data-act="remove" data-id="' + esc(item.id) + '">Remove from the list</button>' : "") + '</div>';
+}
+function aisleChips(current) { return AISLES.map(function (a) { return '<button data-act="aisle" data-aisle="' + esc(a) + '" aria-pressed="' + (a === current ? "true" : "false") + '">' + esc(a) + '</button>'; }).join(""); }
+function settingsSheet() {
+  var info = flyerInfo(), stores = storeList(), picked = S.settings.storeIds || [];
+  return sheetHead("Stores and settings") + '<div class="band sheet-body">' +
+    '<div class="group"><span class="label">Your stores</span><p class="hint">' + (picked.length ? "Only these stores count as deals." : "Tick the stores you shop at. Until you do, every major chain nearby is shown.") + '</p>' +
+      (stores.length ? '<ul class="card" id="store-list">' + stores.map(function (s) { var on = picked.indexOf(s.id) !== -1; return '<li><button class="storerow" data-act="store" data-sid="' + s.id + '" aria-pressed="' + (on ? "true" : "false") + '"><span class="box">' + CHECK + '</span><span class="nm">' + esc(s.name) + '</span><span class="ct">' + s.count + ' deals</span></button></li>'; }).join("") + '</ul>'
+        : '<p class="hint">No flyers are loaded yet.</p>') + '</div>' +
+    '<div class="group"><span class="label">Weekly flyers</span><p class="hint">' + (info ? info.total.toLocaleString() + " sale prices from " + stores.length + " major grocery chains near " + esc(info.zip) + ", loaded " + esc(shortDate(info.fetchedAt)) + "." : "Not loaded yet.") + ' A page like this cannot fetch flyers by itself, so Claude loads them. Ask Claude to refresh them each week or to switch zip codes.</p>' +
+      '<input class="field" id="zip-input" inputmode="numeric" maxlength="5" placeholder="Zip code for the next refresh" value="' + esc(S.settings.zip || (info ? info.zip : "")) + '" aria-label="Zip code for flyers"' + (S.canWrite ? "" : " disabled") + '></div>' +
+    (S.canWrite ? '<div class="group"><span class="label">Bring in a list</span><button class="btn quiet block" data-act="import">Import from Reminders, Notes or a text</button></div>' : "") +
+    '<div class="group"><span class="label">Sharing</span><p class="hint">' + (S.mode === "db" ? "This list is shared with everyone you give access to from the Share menu. Changes show up on their phones within moments." : "Sharing is off in this view. The list is saved on this device only.") + '</p></div></div>';
+}
+function importSheet() {
+  return sheetHead("Import a list") + '<div class="band sheet-body">' +
+    '<p class="hint">Paste a list with one item per line. Bullets, checkboxes and numbering are removed, amounts like “2 lb” are kept, and everything is sorted into aisles.</p>' +
+    '<textarea class="field" id="import-text" placeholder="Milk&#10;Eggs&#10;2 lb chicken thighs&#10;Paper towels" aria-label="List to import"></textarea>' +
+    '<button class="btn block" id="import-go" data-act="import-go" disabled>Paste a list to add it</button>' +
+    '<p class="hint">From Reminders: open the list, tap the ••• button, choose Select Reminders, select them all, then use the share or copy option and paste here.</p></div>';
+}
+function updateImportCount() {
+  var n = splitPasted($("import-text").value).filter(function (l) { return parseItem(l).name; }).length, b = $("import-go");
+  b.disabled = !n; b.textContent = n ? "Add " + n + (n === 1 ? " item" : " items") : "Paste a list to add it";
+}
+/* Text fields in a sheet save when the sheet closes or the field loses focus. */
+function commitSheetFields() {
+  if (!S.canWrite) return;
+  if (S.sheet === "item") {
+    var it = byId(S.sheetItemId), n = $("item-name"), q = $("item-qty");
+    if (it && n && q) { var patch = {}, nv = n.value.trim().slice(0, 120), qv = q.value.trim().slice(0, 40); if (nv && nv !== it.name) patch.name = nv; if (qv !== (it.qty || "")) patch.qty = qv; if (Object.keys(patch).length) store.patch(it.id, patch); }
+  } else if (S.sheet === "settings") {
+    var z = $("zip-input");
+    if (z) { var zv = z.value.replace(/\D/g, "").slice(0, 5); if ((zv.length === 5 || zv.length === 0) && zv !== (S.settings.zip || "")) { var info = flyerInfo(); if (!(info && zv === info.zip && !S.settings.zip)) { store.settings({ zip: zv }); if (zv) toast("Saved. Ask Claude to refresh the flyers for " + zv + "."); } } }
+  }
+}
+
+/* ---------- Events ---------- */
+document.addEventListener("click", function (ev) {
+  var el = ev.target.closest("[data-act]"); if (!el) return;
+  var act = el.getAttribute("data-act"), id = el.getAttribute("data-id");
+  if (act === "toggle") { if (S.canWrite) toggle(id); }
+  else if (act === "open") openSheet("item", id);
+  else if (act === "settings") openSheet("settings");
+  else if (act === "import") { commitSheetFields(); openSheet("import"); }
+  else if (act === "close") closeSheet();
+  else if (act === "view") { S.view = el.getAttribute("data-view"); S.confirmClear = false; render(); $("main").scrollTop = 0; }
+  else if (act === "quick") addMany([el.getAttribute("data-q")]);
+  else if (act === "clear") clearChecked();
+  else if (act === "remove") { var rm = id; S.sheet = null; closeSheet(); store.remove(rm); }
+  else if (act === "aisle") { var it = byId(S.sheetItemId); if (it && S.canWrite) { var a = el.getAttribute("data-aisle"); store.patch(it.id, { category: a }); $("aisle-chips").innerHTML = aisleChips(a); } }
+  else if (act === "store") {
+    if (!S.canWrite) return;
+    var sid = Number(el.getAttribute("data-sid")), cur = (S.settings.storeIds || []).slice(), at = cur.indexOf(sid);
+    if (at === -1) cur.push(sid); else cur.splice(at, 1);
+    el.setAttribute("aria-pressed", String(at === -1)); store.settings({ storeIds: cur }); render();
+  }
+  else if (act === "import-go") {
+    var res = addMany(splitPasted($("import-text").value)); S.sheet = null; closeSheet(); S.view = "list";
+    toast(res.count ? "Adding " + res.count + (res.count === 1 ? " item" : " items") + " to the list" : "Those items are already on the list"); render();
+  }
+});
+document.addEventListener("focusout", function (ev) { if (ev.target && (ev.target.id === "item-name" || ev.target.id === "item-qty" || ev.target.id === "zip-input")) commitSheetFields(); });
+document.addEventListener("keydown", function (ev) {
+  if (ev.key === "Escape" && S.sheet) closeSheet();
+  if (ev.key === "Enter" && ev.target && /^(item-name|item-qty|zip-input)$/.test(ev.target.id)) ev.target.blur();
+});
+$("addform").addEventListener("submit", function (ev) {
+  ev.preventDefault();
+  var input = $("add-input"), v = input.value.trim(); if (!v) return;
+  var res = addMany(splitTyped(v)); input.value = ""; input.focus();
+  if (!res.count) toast("Already on the list");
+});
+
+/* ---------- Start ---------- */
+function startLocal() {
+  S.mode = "local"; S.loaded = true;
+  try { var raw = JSON.parse(localStorage.getItem("grocery-local") || "null"); if (raw) { S.items = raw.items || []; S.settings = Object.assign(S.settings, raw.settings || {}); } } catch (e) {}
+  render();
+}
+function startDb() {
+  S.mode = "db";
+  var slowTimer = setTimeout(function () { if (!S.loaded) { S.slow = true; render(); } }, 10000);
+  var dead = function (e) { clearTimeout(slowTimer); S.loaded = true; S.storeErr = (e && e.code === "revoked") ? "This page lost access to the shared list. Reopen it to reconnect." : "The shared list stopped answering. Reopen the page to reconnect."; render(); };
+  db.collection("items").onSnapshot(function (snap) {
+    S.items = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || ""), qty: String(x.qty || ""), category: x.category || "Other", checked: !!x.checked, by: x.by || "", createdAt: x.createdAt || 0, updatedAt: x.updatedAt || 0 }; }).filter(function (i) { return i.name; });
+    if (!snap.metadata.fromCache || snap.docs.length) { S.loaded = true; }
+    if (!snap.metadata.fromCache) { clearTimeout(slowTimer); S.slow = false; S.loaded = true; }
+    render();
+  }, dead);
+  db.doc("meta/settings").onSnapshot(function (snap) {
+    var x = snap.exists ? (snap.data() || {}) : {};
+    S.settings = { storeIds: Array.isArray(x.storeIds) ? x.storeIds.filter(function (n) { return typeof n === "number"; }) : [], zip: typeof x.zip === "string" ? x.zip : "" };
+    dealCache = {}; render();
+  }, function () {});
+  db.collection("flyers").onSnapshot(function (snap) {
+    S.flyerDocs = snap.docs.map(function (d) { return d.data() || {}; }).filter(function (d) { return Array.isArray(d.items); });
+    buildCatalog(); render();
+  }, function () {});
+}
+render();
+(function boot() {
+  var c = window.claude;
+  if (!c || typeof c.use !== "function") return startLocal();
+  Promise.all([c.use("db"), c.use("user")]).then(function (r) {
+    db = r[0]; user = r[1];
+    if (!db) return startLocal();
+    var facts = user ? Promise.all([user.id(), user.can("data.write")]) : Promise.resolve([null, null]);
+    facts.then(function (f) { myId = f[0]; if (f[1] === false) S.canWrite = false; }).catch(function () {}).then(startDb);
+  }).catch(startLocal);
+})();
+
+/* Exposed for a quick self-check of the pure functions. */
+window.__grocery = { parseItem: parseItem, aisleFor: aisleFor, splitPasted: splitPasted, matches: matches, queryTokens: queryTokens, wordsOf: wordsOf, stem: stem };
+})();
+</script>
